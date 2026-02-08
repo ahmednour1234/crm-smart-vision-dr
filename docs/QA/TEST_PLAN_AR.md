@@ -9,7 +9,7 @@
 - Entities: Users, Companies (Leads), Events, Countries, Packages, JobRuns
 
 ## 2) بيانات اختبار (Test Data)
-- Admin: admin@smartvisioneg.com / password
+- Admin: س / password
 - أنشئ 3 مستخدمين Sales + 1 Manager
 - أنشئ 2 Events + 2 Packages + 2 Countries
 - Leads:

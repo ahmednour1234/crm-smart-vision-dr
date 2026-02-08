@@ -13,6 +13,13 @@ Route::get('/', function () {
         : redirect('/admin');
 });
 
+Route::post('/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/admin/login');
+})->name('logout');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/docs/proforma/{company}', [DocController::class, 'proforma'])->name('docs.proforma');
     Route::get('/docs/contract/{company}', [DocController::class, 'contract'])->name('docs.contract');
