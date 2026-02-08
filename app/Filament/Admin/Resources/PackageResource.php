@@ -29,7 +29,7 @@ class PackageResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('price')->money('USD', shouldConvert: false),
+                Tables\Columns\TextColumn::make('price')->money('USD'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
