@@ -14,6 +14,17 @@ class ListUsers extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            Actions\Action::make('logout')
+                ->label('Logout')
+                ->icon('heroicon-o-arrow-right-on-rectangle')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->action(function () {
+                    auth()->logout();
+                    request()->session()->invalidate();
+                    request()->session()->regenerateToken();
+                    return redirect('/admin/login');
+                }),
         ];
     }
 }
