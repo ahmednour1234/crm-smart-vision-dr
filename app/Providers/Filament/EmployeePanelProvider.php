@@ -28,6 +28,10 @@ class EmployeePanelProvider extends PanelProvider
                     ->label('ملفي الشخصي')
                     ->icon('heroicon-o-user-circle')
                     ->url('#'),
+                MenuItem::make()
+                    ->label('تسجيل الخروج')
+                    ->icon('heroicon-o-arrow-right-on-rectangle')
+                    ->url('/employee/logout'),
             ])
             ->discoverResources(in: app_path('Filament/Employee/Resources'), for: 'App\\Filament\\Employee\\Resources')
             ->discoverPages(in: app_path('Filament/Employee/Pages'), for: 'App\\Filament\\Employee\\Pages')

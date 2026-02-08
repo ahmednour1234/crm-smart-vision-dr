@@ -25,6 +25,10 @@ class AdminPanelProvider extends PanelProvider
                     ->label('ملفي الشخصي')
                     ->icon('heroicon-o-user-circle')
                     ->url('#'),
+                MenuItem::make()
+                    ->label('تسجيل الخروج')
+                    ->icon('heroicon-o-arrow-right-on-rectangle')
+                    ->url('/admin/logout'),
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
