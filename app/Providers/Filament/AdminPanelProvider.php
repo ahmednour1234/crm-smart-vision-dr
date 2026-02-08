@@ -6,6 +6,8 @@ use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
+use Illuminate\Contracts\View\View;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -30,12 +32,16 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-arrow-right-on-rectangle')
                     ->url('/admin/logout'),
             ])
-            ->renderHook(
-                'panels::topbar.end',
-                fn () => view('filament.components.initials-avatar')
-            )
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets');
+    }
+
+    public function boot(): void
+    {
+        FilamentView::registerRenderHook(
+            'panels::topbar.end',
+            fn (): View => view('filament.components.initials-avatar'),
+        );
     }
 }
