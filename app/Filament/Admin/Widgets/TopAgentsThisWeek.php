@@ -7,7 +7,6 @@ use Carbon\CarbonImmutable;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 class TopAgentsThisWeek extends BaseWidget
 {
@@ -19,16 +18,11 @@ class TopAgentsThisWeek extends BaseWidget
 
         return User::query()
             ->where('role', 'sales')
-            ->select([
-                'users.*',
-                DB::raw('count(meetings.id) as meetings_count'),
+            ->withCount([
+                'meetings' => function ($query) use ($weekStart) {
+                    $query->where('meeting_at', '>=', $weekStart);
+                }
             ])
-            ->leftJoin('meetings', function ($join) use ($weekStart): void {
-                $join
-                    ->on('users.id', '=', 'meetings.user_id')
-                    ->where('meetings.meeting_at', '>=', $weekStart);
-            })
-            ->groupBy('users.id')
             ->orderByDesc('meetings_count');
     }
 

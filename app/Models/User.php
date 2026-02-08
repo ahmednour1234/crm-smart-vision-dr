@@ -22,6 +22,11 @@ class User extends Authenticatable implements FilamentUser
         'is_active' => 'boolean',
     ];
 
+    public function meetings()
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         if (! $this->is_active) {
