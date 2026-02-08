@@ -22,7 +22,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->userMenuItems([
                 MenuItem::make()
-                    ->label('Profile')
+                    ->label('ملفي الشخصي')
                     ->icon('heroicon-o-user-circle')
                     ->url('#'),
             ])
