@@ -7,6 +7,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\View;
 
 class AdminPanelProvider extends PanelProvider
@@ -40,7 +41,7 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentView::registerRenderHook(
-            'panels::topbar.end',
+            PanelsRenderHook::USER_MENU_BEFORE,
             fn (): View => view('filament.components.initials-avatar'),
         );
     }
