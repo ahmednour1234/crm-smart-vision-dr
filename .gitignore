@@ -11,5 +11,6 @@
 .env
 .env.backup
 .phpunit.result.cache
+database/database.sqlite
 npm-debug.log
 yarn-error.log
