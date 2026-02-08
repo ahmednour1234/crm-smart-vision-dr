@@ -7,7 +7,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
-use Illuminate\Support\Facades\Auth;
 
 class EmployeePanelProvider extends PanelProvider
 {
@@ -29,15 +28,6 @@ class EmployeePanelProvider extends PanelProvider
                     ->label('Profile')
                     ->icon('heroicon-o-user-circle')
                     ->url('#'),
-                MenuItem::make()
-                    ->label('Logout')
-                    ->icon('heroicon-o-arrow-right-on-rectangle')
-                    ->action(function () {
-                        Auth::logout();
-                        request()->session()->invalidate();
-                        request()->session()->regenerateToken();
-                        return redirect('/employee/login');
-                    }),
             ])
             ->discoverResources(in: app_path('Filament/Employee/Resources'), for: 'App\\Filament\\Employee\\Resources')
             ->discoverPages(in: app_path('Filament/Employee/Pages'), for: 'App\\Filament\\Employee\\Pages')
