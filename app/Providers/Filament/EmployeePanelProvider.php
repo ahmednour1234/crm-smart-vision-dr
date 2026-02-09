@@ -7,9 +7,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
-use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
-use Illuminate\Contracts\View\View;
 
 class EmployeePanelProvider extends PanelProvider
 {
@@ -26,6 +24,10 @@ class EmployeePanelProvider extends PanelProvider
             ->assets([
                 Css::make('custom-style', resource_path('css/custom.css')),
             ])
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_TRIGGER_BEFORE,
+                fn () => view('filament.components.initials-avatar')
+            )
             ->userMenuItems([
                 MenuItem::make()
                     ->label('ملفي الشخصي')
@@ -34,18 +36,10 @@ class EmployeePanelProvider extends PanelProvider
                 MenuItem::make()
                     ->label('تسجيل الخروج')
                     ->icon('heroicon-o-arrow-right-on-rectangle')
-                    ->url('/employee/logout'),
+                    ->url(fn (): string => url('/employee/logout')),
             ])
             ->discoverResources(in: app_path('Filament/Employee/Resources'), for: 'App\\Filament\\Employee\\Resources')
             ->discoverPages(in: app_path('Filament/Employee/Pages'), for: 'App\\Filament\\Employee\\Pages')
             ->discoverWidgets(in: app_path('Filament/Employee/Widgets'), for: 'App\\Filament\\Employee\\Widgets');
-    }
-
-    public function boot(): void
-    {
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::USER_MENU_BEFORE,
-            fn (): View => view('filament.components.initials-avatar'),
-        );
     }
 }

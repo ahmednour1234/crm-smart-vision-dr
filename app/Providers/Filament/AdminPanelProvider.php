@@ -6,9 +6,7 @@ use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
-use Illuminate\Contracts\View\View;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -23,26 +21,34 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
+
+            // ✅ حقن الـ Avatar في زر المستخدم نفسه (Topbar trigger)
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_TRIGGER_BEFORE,
+                fn () => view('filament.components.initials-avatar')
+            )
+
+            // (اختياري) لو عايز تحقنه داخل الـ dropdown قبل العناصر
+            // ->renderHook(
+            //     PanelsRenderHook::USER_MENU_BEFORE,
+            //     fn () => view('filament.components.initials-avatar')
+            // )
+
             ->userMenuItems([
                 MenuItem::make()
                     ->label('ملفي الشخصي')
                     ->icon('heroicon-o-user-circle')
                     ->url('#'),
+
                 MenuItem::make()
                     ->label('تسجيل الخروج')
                     ->icon('heroicon-o-arrow-right-on-rectangle')
-                    ->url('/admin/logout'),
+                    // الأفضل تستخدم route لو متاح عندك، بدل URL ثابت
+                    ->url(fn (): string => url('/admin/logout')),
             ])
+
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets');
-    }
-
-    public function boot(): void
-    {
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::USER_MENU_BEFORE,
-            fn (): View => view('filament.components.initials-avatar'),
-        );
     }
 }
