@@ -7,7 +7,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
-use Filament\View\PanelsRenderHook;
 
 class EmployeePanelProvider extends PanelProvider
 {
@@ -25,7 +24,7 @@ class EmployeePanelProvider extends PanelProvider
                 Css::make('custom-style', resource_path('css/custom.css')),
             ])
             ->renderHook(
-                PanelsRenderHook::USER_MENU_TRIGGER_BEFORE,
+                'panels::user-menu.before',
                 fn () => view('filament.components.initials-avatar')
             )
             ->userMenuItems([

@@ -6,7 +6,6 @@ use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -22,17 +21,10 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
             ])
 
-            // ✅ حقن الـ Avatar في زر المستخدم نفسه (Topbar trigger)
             ->renderHook(
-                PanelsRenderHook::USER_MENU_TRIGGER_BEFORE,
+                'panels::user-menu.before',
                 fn () => view('filament.components.initials-avatar')
             )
-
-            // (اختياري) لو عايز تحقنه داخل الـ dropdown قبل العناصر
-            // ->renderHook(
-            //     PanelsRenderHook::USER_MENU_BEFORE,
-            //     fn () => view('filament.components.initials-avatar')
-            // )
 
             ->userMenuItems([
                 MenuItem::make()
