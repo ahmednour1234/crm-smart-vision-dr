@@ -30,11 +30,17 @@ class Profile extends Page implements HasForms
     public function mount(): void
     {
         $user = Auth::user();
+        
+        if (!$user) {
+            redirect()->route('filament.admin.auth.login');
+            return;
+        }
+
         $this->form->fill([
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-            'is_active' => $user->is_active,
+            'name' => $user->name ?? '',
+            'email' => $user->email ?? '',
+            'role_id' => $user->role_id,
+            'is_active' => $user->is_active ?? false,
         ]);
     }
 
@@ -56,12 +62,8 @@ class Profile extends Page implements HasForms
                             ->label('Email')
                             ->unique(ignoreRecord: true),
 
-                        Forms\Components\Select::make('role')
-                            ->options([
-                                'admin' => 'Admin',
-                                'manager' => 'Manager',
-                                'sales' => 'Sales',
-                            ])
+                        Forms\Components\Select::make('role_id')
+                            ->relationship('role', 'name')
                             ->disabled()
                             ->label('Role'),
 
@@ -92,14 +94,22 @@ class Profile extends Page implements HasForms
                     ->collapsible()
                     ->collapsed(),
             ])
-            ->statePath('data')
-            ->model(Auth::user());
+            ->statePath('data');
     }
 
     public function save(): void
     {
-        $data = $this->form->getState();
         $user = Auth::user();
+        
+        if (!$user) {
+            Notification::make()
+                ->title('You must be logged in to update your profile.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $data = $this->form->getState();
 
         if (!empty($data['current_password']) && !empty($data['new_password'])) {
             if (!Hash::check($data['current_password'], $user->password)) {
@@ -117,7 +127,7 @@ class Profile extends Page implements HasForms
         $this->form->fill([
             'name' => $user->name,
             'email' => $user->email,
-            'role' => $user->role,
+            'role_id' => $user->role_id,
             'is_active' => $user->is_active,
         ]);
 

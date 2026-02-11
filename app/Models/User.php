@@ -39,9 +39,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Meeting::class);
     }
 
-    public function roleModel()
+    public function role()
     {
-        return Role::where('slug', $this->role)->first();
+        return $this->belongsTo(Role::class);
     }
 
     public function hasPermission(string $permissionSlug): bool
@@ -50,12 +50,11 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
-        $role = $this->roleModel();
-        if (! $role) {
+        if (! $this->role) {
             return false;
         }
 
-        return $role->hasPermission($permissionSlug);
+        return $this->role->hasPermission($permissionSlug);
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -64,9 +63,15 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
+        if (! $this->role) {
+            return false;
+        }
+
+        $roleSlug = $this->role->slug;
+
         return match ($panel->getId()) {
-            'admin' => in_array($this->role, ['admin', 'manager', 'sales'], true),
-            'employee' => in_array($this->role, ['sales', 'admin', 'manager'], true),
+            'admin' => in_array($roleSlug, ['admin', 'manager', 'sales'], true),
+            'employee' => in_array($roleSlug, ['sales', 'admin', 'manager'], true),
             default => false,
         };
     }

@@ -18,7 +18,7 @@ class MeetingPolicy
             return false;
         }
 
-        return $user->role !== 'sales' || $meeting->user_id === $user->id;
+        return $user->role?->slug !== 'sales' || $meeting->user_id === $user->id;
     }
 
     public function create(User $user): bool
@@ -32,7 +32,7 @@ class MeetingPolicy
             return false;
         }
 
-        return $user->role !== 'sales' || $meeting->user_id === $user->id;
+        return $user->role?->slug !== 'sales' || $meeting->user_id === $user->id;
     }
 
     public function delete(User $user, Meeting $meeting): bool
@@ -41,6 +41,6 @@ class MeetingPolicy
             return false;
         }
 
-        return $user->role !== 'sales' || $meeting->user_id === $user->id;
+        return $user->role?->slug !== 'sales' || $meeting->user_id === $user->id;
     }
 }

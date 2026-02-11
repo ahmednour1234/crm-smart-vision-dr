@@ -11,7 +11,7 @@ class DocController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($user && in_array($user->role, ['admin', 'manager'], true), 403);
+        abort_unless($user && $user->role && in_array($user->role->slug, ['admin', 'manager'], true), 403);
 
         $company->loadMissing(['event', 'package', 'country', 'owner']);
 
@@ -26,7 +26,7 @@ class DocController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($user && in_array($user->role, ['admin', 'manager'], true), 403);
+        abort_unless($user && $user->role && in_array($user->role->slug, ['admin', 'manager'], true), 403);
 
         $company->loadMissing(['event', 'package', 'country', 'owner']);
 

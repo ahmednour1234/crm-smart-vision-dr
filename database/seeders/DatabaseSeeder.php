@@ -10,17 +10,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('users')->updateOrInsert(
-            ['email' => 'admin@smartvisioneg.com'],
-            [
-                'name' => 'Admin',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        );
+        $adminRole = DB::table('roles')->where('slug', 'admin')->first();
+        
+        if ($adminRole) {
+            DB::table('users')->updateOrInsert(
+                ['email' => 'admin@smartvisioneg.com'],
+                [
+                    'name' => 'Admin',
+                    'password' => Hash::make('password'),
+                    'role_id' => $adminRole->id,
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            );
+        }
 
         DB::table('countries')->updateOrInsert(
             ['iso2' => 'EG'],

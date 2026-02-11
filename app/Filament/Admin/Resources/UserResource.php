@@ -56,13 +56,12 @@ class UserResource extends Resource
                 ->dehydrated(fn (?string $state, string $operation): bool => $operation === 'create' ? filled($state) : filled($state))
                 ->helperText('Required on create. Leave empty on edit to keep current password.'),
 
-            Forms\Components\Select::make('role')
-                ->options([
-                    'admin' => 'Admin',
-                    'manager' => 'Manager',
-                    'sales' => 'Sales',
-                ])
-                ->required(),
+            Forms\Components\Select::make('role_id')
+                ->relationship('role', 'name')
+                ->searchable()
+                ->preload()
+                ->required()
+                ->label('Role'),
 
             Forms\Components\Toggle::make('is_active')
                 ->default(true),
@@ -75,13 +74,21 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('email')->searchable(),
-                Tables\Columns\TextColumn::make('role')->badge(),
+                Tables\Columns\TextColumn::make('role.name')
+                    ->label('Role')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')->boolean(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ]);
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->with('role');
     }
 
     public static function getPages(): array
