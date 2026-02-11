@@ -25,7 +25,7 @@ class CompanyResource extends Resource
         $user = Auth::user();
         
         if (! $user || ! $user->is_active) {
-            return false;
+            return true;
         }
 
         if ($user->hasPermission('company.view')) {
