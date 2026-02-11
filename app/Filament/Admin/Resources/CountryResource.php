@@ -19,22 +19,22 @@ class CountryResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasPermission('country.view.any') ?? false;
+        return Auth::user()?->hasPermissionTo('country.view.any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('country.create') ?? false;
+        return Auth::user()?->hasPermissionTo('country.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('country.update') ?? false;
+        return Auth::user()?->hasPermissionTo('country.update') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('country.delete') ?? false;
+        return Auth::user()?->hasPermissionTo('country.delete') ?? false;
     }
 
     public static function form(Form $form): Form
