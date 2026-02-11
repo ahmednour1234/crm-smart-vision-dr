@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\RoleResource\Pages;
+use App\Models\Permission;
 use App\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -34,6 +35,14 @@ class RoleResource extends Resource
                 ->rows(3)
                 ->columnSpanFull()
                 ->nullable(),
+
+            Forms\Components\Select::make('permissions')
+                ->relationship('permissions', 'name')
+                ->multiple()
+                ->searchable()
+                ->preload()
+                ->columnSpanFull()
+                ->helperText('Select permissions to assign to this role'),
         ]);
     }
 
@@ -47,6 +56,12 @@ class RoleResource extends Resource
 
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable()
+                    ->sortable()
+                    ->badge(),
+
+                Tables\Columns\TextColumn::make('permissions_count')
+                    ->counts('permissions')
+                    ->label('Permissions')
                     ->sortable()
                     ->badge(),
 
