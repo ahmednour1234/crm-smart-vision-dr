@@ -57,7 +57,12 @@ class PermissionSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::updateOrCreate(
                 ['slug' => $permission['slug']],
-                $permission
+                [
+                    'name' => $permission['name'],
+                    'slug' => $permission['slug'],
+                    'resource' => $permission['resource'] ?? null,
+                    'description' => $permission['description'] ?? null,
+                ]
             );
         }
     }
