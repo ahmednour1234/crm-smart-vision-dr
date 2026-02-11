@@ -32,8 +32,7 @@ class UserResource extends Resource
             Forms\Components\TextInput::make('password')
                 ->password()
                 ->required(fn (string $operation): bool => $operation === 'create')
-                ->dehydrateStateUsing(fn (?string $state): ?string => $state ? Hash::make($state) : null)
-                ->dehydrated(fn (?string $state): bool => filled($state))
+                ->dehydrated(fn (?string $state, string $operation): bool => $operation === 'create' ? filled($state) : filled($state))
                 ->helperText('Required on create. Leave empty on edit to keep current password.'),
 
             Forms\Components\Select::make('role')
