@@ -147,18 +147,6 @@ class CompanyResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                Action::make('proforma')
-                    ->label('Proforma')
-                    ->icon('heroicon-o-document-text')
-                    ->url(fn (Company $record): string => route('docs.proforma', $record))
-                    ->openUrlInNewTab(),
-
-                Action::make('contract')
-                    ->label('Contract')
-                    ->icon('heroicon-o-document')
-                    ->url(fn (Company $record): string => route('docs.contract', $record))
-                    ->openUrlInNewTab(),
-
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
