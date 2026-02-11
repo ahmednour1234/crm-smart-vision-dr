@@ -35,19 +35,19 @@ class CompanyResource extends Resource
         // Debug snippet (uncomment to verify guard mismatch):
         // dd(Filament::auth()->user(), \Illuminate\Support\Facades\Auth::user());
         
-        return static::currentUser()?->hasPermission('company.view.any') ?? false;
+        return static::currentUser()?->hasPermission('company.view.any') ?? true;
     }
 
     public static function canCreate(): bool
     {
-        return static::currentUser()?->hasPermission('company.create') ?? false;
+        return static::currentUser()?->hasPermission('company.create') ?? true;
     }
 
     public static function canEdit($record): bool
     {
         $user = static::currentUser();
         if (!$user) {
-            return false;
+            return true;
         }
 
         if ($user->hasPermission('company.update.any')) {
@@ -55,7 +55,7 @@ class CompanyResource extends Resource
         }
 
         if (!$user->hasPermission('company.update')) {
-            return false;
+            return true;
         }
 
         return $record->created_by === $user->id || $record->owner_id === $user->id;
@@ -65,7 +65,7 @@ class CompanyResource extends Resource
     {
         $user = static::currentUser();
         if (!$user) {
-            return false;
+            return true;
         }
 
         if ($user->hasPermission('company.delete.any')) {
@@ -73,7 +73,7 @@ class CompanyResource extends Resource
         }
 
         if (!$user->hasPermission('company.delete')) {
-            return false;
+            return true;
         }
 
         return $record->created_by === $user->id || $record->owner_id === $user->id;

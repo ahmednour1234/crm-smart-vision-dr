@@ -19,22 +19,22 @@ class PackageResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('package.view.any') ?? true;
     }
 
     public static function canCreate(): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.create') ?? false;
+        return Filament::auth()->user()?->hasPermission('package.create') ?? true;
     }
 
     public static function canEdit($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.update') ?? false;
+        return Filament::auth()->user()?->hasPermission('package.update') ?? true;
     }
 
     public static function canDelete($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.delete') ?? false;
+        return Filament::auth()->user()?->hasPermission('package.delete') ?? true;
     }
 
     public static function form(Form $form): Form

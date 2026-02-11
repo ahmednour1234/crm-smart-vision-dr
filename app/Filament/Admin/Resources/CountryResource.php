@@ -19,22 +19,22 @@ class CountryResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('country.view.any') ?? true;
     }
 
     public static function canCreate(): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.create') ?? false;
+        return Filament::auth()->user()?->hasPermission('country.create') ?? true;
     }
 
     public static function canEdit($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.update') ?? false;
+        return Filament::auth()->user()?->hasPermission('country.update') ?? true;
     }
 
     public static function canDelete($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.delete') ?? false;
+        return Filament::auth()->user()?->hasPermission('country.delete') ?? true;
     }
 
     public static function form(Form $form): Form

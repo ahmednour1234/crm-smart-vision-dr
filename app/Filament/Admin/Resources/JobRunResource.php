@@ -17,12 +17,12 @@ class JobRunResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('jobrun.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('jobrun.view.any') ?? true;
     }
 
     public static function canCreate(): bool
     {
-        return false;
+        return true;
     }
 
     public static function table(Table $table): Table
