@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -16,6 +17,26 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->hasPermission('user.view.any') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()?->hasPermission('user.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Auth::user()?->hasPermission('user.update') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return Auth::user()?->hasPermission('user.delete') ?? false;
+    }
 
     public static function form(Form $form): Form
     {

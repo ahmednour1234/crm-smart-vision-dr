@@ -10,12 +10,33 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->hasPermission('role.view.any') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()?->hasPermission('role.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Auth::user()?->hasPermission('role.update') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return Auth::user()?->hasPermission('role.delete') ?? false;
+    }
 
     public static function form(Form $form): Form
     {

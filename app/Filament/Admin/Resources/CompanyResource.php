@@ -22,22 +22,48 @@ class CompanyResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        return Auth::user()?->hasPermission('company.view.any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        return Auth::user()?->hasPermission('company.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return true;
+        $user = Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.update.any')) {
+            return true;
+        }
+
+        if (!$user->hasPermission('company.update')) {
+            return false;
+        }
+
+        return $record->created_by === $user->id || $record->owner_id === $user->id;
     }
 
     public static function canDelete($record): bool
     {
-        return true;
+        $user = Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.delete.any')) {
+            return true;
+        }
+
+        if (!$user->hasPermission('company.delete')) {
+            return false;
+        }
+
+        return $record->created_by === $user->id || $record->owner_id === $user->id;
     }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder

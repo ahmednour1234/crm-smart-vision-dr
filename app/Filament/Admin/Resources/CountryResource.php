@@ -9,12 +9,33 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CountryResource extends Resource
 {
     protected static ?string $model = Country::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-flag';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->hasPermission('country.view.any') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()?->hasPermission('country.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Auth::user()?->hasPermission('country.update') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return Auth::user()?->hasPermission('country.delete') ?? false;
+    }
 
     public static function form(Form $form): Form
     {

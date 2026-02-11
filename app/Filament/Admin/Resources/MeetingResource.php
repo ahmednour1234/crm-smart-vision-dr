@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class MeetingResource extends Resource
 {
@@ -17,6 +18,26 @@ class MeetingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $navigationLabel = 'Meetings (KPI)';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->hasPermission('meeting.view.any') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()?->hasPermission('meeting.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Auth::user()?->hasPermission('meeting.update') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return Auth::user()?->hasPermission('meeting.delete') ?? false;
+    }
 
     public static function form(Form $form): Form
     {

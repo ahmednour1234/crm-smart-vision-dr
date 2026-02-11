@@ -7,12 +7,18 @@ use App\Models\JobRun;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class JobRunResource extends Resource
 {
     protected static ?string $model = JobRun::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->hasPermission('jobrun.view.any') ?? false;
+    }
 
     public static function canCreate(): bool
     {
