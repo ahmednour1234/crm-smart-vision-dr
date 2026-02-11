@@ -25,6 +25,21 @@ class CompanyResource extends Resource
         return true;
     }
 
+    public static function canCreate(): bool
+    {
+        return true;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return true;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return true;
+    }
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()->with(['owner', 'event', 'package', 'country', 'createdBy', 'bookedBy']);
@@ -136,21 +151,16 @@ class CompanyResource extends Resource
                     ->label('Proforma')
                     ->icon('heroicon-o-document-text')
                     ->url(fn (Company $record): string => route('docs.proforma', $record))
-                    ->openUrlInNewTab()
-                    ->visible(fn (Company $record) => Auth::user()?->can('view', $record) ?? false),
+                    ->openUrlInNewTab(),
 
                 Action::make('contract')
                     ->label('Contract')
                     ->icon('heroicon-o-document')
                     ->url(fn (Company $record): string => route('docs.contract', $record))
-                    ->openUrlInNewTab()
-                    ->visible(fn (Company $record) => Auth::user()?->can('view', $record) ?? false),
+                    ->openUrlInNewTab(),
 
-                Tables\Actions\EditAction::make()
-                    ->visible(fn (Company $record) => Auth::user()?->can('update', $record) ?? false),
-
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn (Company $record) => Auth::user()?->can('delete', $record) ?? false),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->defaultSort('id', 'desc');
     }

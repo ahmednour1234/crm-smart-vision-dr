@@ -14,8 +14,7 @@ class ListCompanies extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
-                ->visible(fn () => Auth::user()?->can('create', \App\Models\Company::class) ?? false),
+            Actions\CreateAction::make(),
         ];
     }
 }
