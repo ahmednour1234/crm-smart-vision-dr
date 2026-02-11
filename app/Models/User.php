@@ -65,7 +65,7 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return match ($panel->getId()) {
-            'admin' => in_array($this->role, ['admin', 'manager'], true),
+            'admin' => in_array($this->role, ['admin', 'manager', 'sales'], true),
             'employee' => in_array($this->role, ['sales', 'admin', 'manager'], true),
             default => false,
         };
