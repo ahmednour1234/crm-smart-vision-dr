@@ -25,14 +25,10 @@ class CompanyResource extends Resource
         $user = Auth::user();
         
         if (! $user || ! $user->is_active) {
-            return true;
+            return false;
         }
 
-        if ($user->hasPermission('company.view')) {
-            return true;
-        }
-
-        return in_array($user->role, ['admin', 'manager'], true);
+        return $user->role === 'admin';
     }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
