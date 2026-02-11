@@ -73,28 +73,36 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        if (! $this->is_active) {
+        try {
+            if (! $this->is_active) {
+                return false;
+            }
+
+            if (! $this->role_id) {
+                return false;
+            }
+
+            if (! $this->relationLoaded('role')) {
+                $this->load('role');
+            }
+
+            if (! $this->role) {
+                return false;
+            }
+
+            $roleSlug = $this->role->slug ?? null;
+
+            if (! $roleSlug) {
+                return false;
+            }
+
+            return match ($panel->getId()) {
+                'admin' => in_array($roleSlug, ['admin', 'manager', 'sales'], true),
+                'employee' => in_array($roleSlug, ['sales', 'admin', 'manager'], true),
+                default => false,
+            };
+        } catch (\Exception $e) {
             return false;
         }
-
-        if (! $this->role_id) {
-            return false;
-        }
-
-        if (! $this->relationLoaded('role')) {
-            $this->load('role');
-        }
-
-        if (! $this->role) {
-            return false;
-        }
-
-        $roleSlug = $this->role->slug;
-
-        return match ($panel->getId()) {
-            'admin' => in_array($roleSlug, ['admin', 'manager', 'sales'], true),
-            'employee' => in_array($roleSlug, ['sales', 'admin', 'manager'], true),
-            default => false,
-        };
     }
 }

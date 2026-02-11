@@ -49,6 +49,10 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
         $this->command->info('Roles seeded successfully!');
 
+        $this->command->info('Updating users with role_id...');
+        $this->call(UpdateUsersRoleIdSeeder::class);
+        $this->command->info('Users updated successfully!');
+
         if (env('SEED_PERFORMANCE') === '1') {
             $this->call(PerformanceSeeder::class);
         }
