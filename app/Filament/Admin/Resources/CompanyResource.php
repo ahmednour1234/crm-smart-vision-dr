@@ -4,13 +4,13 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\CompanyResource\Pages;
 use App\Models\Company;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class CompanyResource extends Resource
 {
@@ -20,19 +20,32 @@ class CompanyResource extends Resource
 
     protected static ?string $navigationLabel = 'Companies';
 
+    protected static function currentUser()
+    {
+        return Filament::auth()->user();
+    }
+
+    protected static function currentUserId(): ?int
+    {
+        return Filament::auth()->id();
+    }
+
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasPermission('company.view.any') ?? false;
+        // Debug snippet (uncomment to verify guard mismatch):
+        // dd(Filament::auth()->user(), \Illuminate\Support\Facades\Auth::user());
+        
+        return static::currentUser()?->hasPermission('company.view.any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('company.create') ?? false;
+        return static::currentUser()?->hasPermission('company.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        $user = Auth::user();
+        $user = static::currentUser();
         if (!$user) {
             return false;
         }
@@ -50,7 +63,7 @@ class CompanyResource extends Resource
 
     public static function canDelete($record): bool
     {
-        $user = Auth::user();
+        $user = static::currentUser();
         if (!$user) {
             return false;
         }
@@ -124,7 +137,7 @@ class CompanyResource extends Resource
                 Tables\Columns\TextColumn::make('booked')
                     ->label('Booked')
                     ->getStateUsing(function (Company $record) {
-                        $currentUserId = Auth::id();
+                        $currentUserId = Filament::auth()->id();
                         
                         if ($record->created_by === $currentUserId) {
                             return 'Your Company';
@@ -142,8 +155,8 @@ class CompanyResource extends Resource
                     })
                     ->badge()
                     ->color(fn (Company $record) => match (true) {
-                        $record->created_by === Auth::id() => 'success',
-                        $record->booked_by === Auth::id() => 'info',
+                        $record->created_by === Filament::auth()->id() => 'success',
+                        $record->booked_by === Filament::auth()->id() => 'info',
                         $record->booked_by !== null => 'warning',
                         default => 'gray',
                     }),
@@ -164,7 +177,7 @@ class CompanyResource extends Resource
                     ]),
                 Tables\Filters\Filter::make('my_companies')
                     ->label('My Companies')
-                    ->query(fn ($query) => $query->where('created_by', Auth::id()))
+                    ->query(fn ($query) => $query->where('created_by', Filament::auth()->id()))
                     ->toggle(),
             ])
             ->actions([
