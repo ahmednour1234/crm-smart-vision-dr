@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyResource extends Resource
 {
@@ -19,7 +20,7 @@ class CompanyResource extends Resource
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->with(['owner', 'event', 'package', 'country']);
+        return parent::getEloquentQuery()->with(['owner', 'event', 'package', 'country', 'createdBy', 'bookedBy']);
     }
 
     public static function form(Form $form): Form
@@ -77,6 +78,32 @@ class CompanyResource extends Resource
                 Tables\Columns\TextColumn::make('company_name')->searchable()->wrap(),
                 Tables\Columns\TextColumn::make('status')->badge(),
                 Tables\Columns\TextColumn::make('owner.name')->label('Owner')->sortable(),
+                Tables\Columns\TextColumn::make('booked')
+                    ->label('Booked')
+                    ->getStateUsing(function (Company $record) {
+                        $currentUserId = Auth::id();
+                        
+                        if ($record->created_by === $currentUserId) {
+                            return 'Your Company';
+                        }
+                        
+                        if ($record->booked_by) {
+                            if ($record->booked_by === $currentUserId) {
+                                return 'Booked by You';
+                            }
+                            
+                            return $record->bookedBy?->name ?? 'Booked';
+                        }
+                        
+                        return '-';
+                    })
+                    ->badge()
+                    ->color(fn (Company $record) => match (true) {
+                        $record->created_by === Auth::id() => 'success',
+                        $record->booked_by === Auth::id() => 'info',
+                        $record->booked_by !== null => 'warning',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('event.name')->label('Event')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('country.name')->label('Country')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('next_followup_date')->date()->sortable()->toggleable(isToggledHiddenByDefault: true),
@@ -92,6 +119,10 @@ class CompanyResource extends Resource
                         'won' => 'Won',
                         'lost' => 'Lost',
                     ]),
+                Tables\Filters\Filter::make('my_companies')
+                    ->label('My Companies')
+                    ->query(fn ($query) => $query->where('created_by', Auth::id()))
+                    ->toggle(),
             ])
             ->actions([
                 Action::make('proforma')

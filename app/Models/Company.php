@@ -85,4 +85,14 @@ class Company extends Model
     {
         return $this->hasMany(Meeting::class);
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function bookedBy()
+    {
+        return $this->belongsTo(User::class, 'booked_by');
+    }
 }
