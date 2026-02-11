@@ -18,6 +18,23 @@ class CompanyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
+    protected static ?string $navigationLabel = 'Companies';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+        
+        if (! $user || ! $user->is_active) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.view')) {
+            return true;
+        }
+
+        return in_array($user->role, ['admin', 'manager'], true);
+    }
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()->with(['owner', 'event', 'package', 'country', 'createdBy', 'bookedBy']);
