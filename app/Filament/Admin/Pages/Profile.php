@@ -36,9 +36,18 @@ class Profile extends Page implements HasForms
         }
 
         try {
+            $roleName = 'No role assigned';
+            if ($user->role_id) {
+                if (!$user->relationLoaded('role')) {
+                    $user->load('role');
+                }
+                $roleName = $user->role?->name ?? 'No role assigned';
+            }
+
             $this->form->fill([
                 'name' => $user->name ?? '',
                 'email' => $user->email ?? '',
+                'role_display' => $roleName,
                 'is_active' => $user->is_active ?? false,
             ]);
         } catch (\Exception $e) {
@@ -71,17 +80,7 @@ class Profile extends Page implements HasForms
                         Forms\Components\TextInput::make('role_display')
                             ->label('Role')
                             ->disabled()
-                            ->dehydrated(false)
-                            ->default(fn () => {
-                                $user = Auth::user();
-                                if (!$user || !$user->role_id) {
-                                    return 'No role assigned';
-                                }
-                                if (!$user->relationLoaded('role')) {
-                                    $user->load('role');
-                                }
-                                return $user->role?->name ?? 'No role assigned';
-                            }),
+                            ->dehydrated(false),
 
                         Forms\Components\Toggle::make('is_active')
                             ->disabled()
