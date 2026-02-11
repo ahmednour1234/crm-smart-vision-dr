@@ -28,14 +28,13 @@ class AdminPanelProvider extends PanelProvider
 
             ->userMenuItems([
                 MenuItem::make()
-                    ->label('ملفي الشخصي')
+                    ->label('My Profile')
                     ->icon('heroicon-o-user-circle')
-                    ->url('#'),
+                    ->url(fn (): string => \App\Filament\Admin\Pages\Profile::getUrl()),
 
                 MenuItem::make()
-                    ->label('تسجيل الخروج')
+                    ->label('Logout')
                     ->icon('heroicon-o-arrow-right-on-rectangle')
-                    // الأفضل تستخدم route لو متاح عندك، بدل URL ثابت
                     ->url(fn (): string => url('/admin/logout')),
             ])
 
