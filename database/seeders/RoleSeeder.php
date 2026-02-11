@@ -8,130 +8,73 @@ use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
+    protected static array $roleDefinitions = [
+        'admin' => [
+            'name' => 'Admin',
+            'description' => 'Full system access with all permissions',
+            'resources' => [
+                'permission' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'role' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'user' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'company' => ['view', 'view.any', 'create', 'update', 'update.any', 'delete', 'delete.any'],
+                'country' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'event' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'package' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'meeting' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'jobrun' => ['view', 'view.any'],
+            ],
+        ],
+        'manager' => [
+            'name' => 'Manager',
+            'description' => 'Management access with limited administrative permissions',
+            'resources' => [
+                'company' => ['view', 'view.any', 'create', 'update', 'update.any', 'delete', 'delete.any'],
+                'country' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'event' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'package' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'meeting' => ['view', 'view.any', 'create', 'update', 'delete'],
+                'jobrun' => ['view', 'view.any'],
+            ],
+        ],
+        'sales' => [
+            'name' => 'Sales',
+            'description' => 'Sales team member with access to leads and meetings',
+            'resources' => [
+                'company' => ['view', 'view.any', 'create', 'update'],
+                'meeting' => ['view', 'view.any', 'create', 'update'],
+                'event' => ['view', 'view.any'],
+                'package' => ['view', 'view.any'],
+                'country' => ['view', 'view.any'],
+            ],
+        ],
+    ];
+
     public function run(): void
     {
-        $roles = [
-            [
-                'name' => 'Admin',
-                'slug' => 'admin',
-                'description' => 'Full system access with all permissions',
-                'permissions' => [
-                    'permission.view',
-                    'permission.view.any',
-                    'permission.create',
-                    'permission.update',
-                    'permission.delete',
-                    'role.view',
-                    'role.view.any',
-                    'role.create',
-                    'role.update',
-                    'role.delete',
-                    'user.view',
-                    'user.view.any',
-                    'user.create',
-                    'user.update',
-                    'user.delete',
-                    'company.view',
-                    'company.view.any',
-                    'company.create',
-                    'company.update',
-                    'company.update.any',
-                    'company.delete',
-                    'company.delete.any',
-                    'country.view',
-                    'country.view.any',
-                    'country.create',
-                    'country.update',
-                    'country.delete',
-                    'event.view',
-                    'event.view.any',
-                    'event.create',
-                    'event.update',
-                    'event.delete',
-                    'package.view',
-                    'package.view.any',
-                    'package.create',
-                    'package.update',
-                    'package.delete',
-                    'meeting.view',
-                    'meeting.view.any',
-                    'meeting.create',
-                    'meeting.update',
-                    'meeting.delete',
-                    'jobrun.view',
-                    'jobrun.view.any',
-                ],
-            ],
-            [
-                'name' => 'Manager',
-                'slug' => 'manager',
-                'description' => 'Management access with limited administrative permissions',
-                'permissions' => [
-                    'company.view',
-                    'company.view.any',
-                    'company.create',
-                    'company.update',
-                    'company.update.any',
-                    'company.delete',
-                    'company.delete.any',
-                    'country.view',
-                    'country.view.any',
-                    'country.create',
-                    'country.update',
-                    'country.delete',
-                    'event.view',
-                    'event.view.any',
-                    'event.create',
-                    'event.update',
-                    'event.delete',
-                    'package.view',
-                    'package.view.any',
-                    'package.create',
-                    'package.update',
-                    'package.delete',
-                    'meeting.view',
-                    'meeting.view.any',
-                    'meeting.create',
-                    'meeting.update',
-                    'meeting.delete',
-                    'jobrun.view',
-                    'jobrun.view.any',
-                ],
-            ],
-            [
-                'name' => 'Sales',
-                'slug' => 'sales',
-                'description' => 'Sales team member with access to leads and meetings',
-                'permissions' => [
-                    'company.view',
-                    'company.view.any',
-                    'company.create',
-                    'company.update',
-                    'meeting.view',
-                    'meeting.view.any',
-                    'meeting.create',
-                    'meeting.update',
-                    'event.view',
-                    'event.view.any',
-                    'package.view',
-                    'package.view.any',
-                    'country.view',
-                    'country.view.any',
-                ],
-            ],
-        ];
-
-        foreach ($roles as $roleData) {
-            $permissions = $roleData['permissions'];
-            unset($roleData['permissions']);
+        foreach (self::$roleDefinitions as $slug => $roleData) {
+            $permissions = $this->buildPermissionsFromResources($roleData['resources']);
 
             $role = Role::updateOrCreate(
-                ['slug' => $roleData['slug']],
-                $roleData
+                ['slug' => $slug],
+                [
+                    'name' => $roleData['name'],
+                    'description' => $roleData['description'],
+                ]
             );
 
             $permissionIds = Permission::whereIn('slug', $permissions)->pluck('id');
             $role->permissions()->sync($permissionIds);
         }
+    }
+
+    protected function buildPermissionsFromResources(array $resources): array
+    {
+        $permissions = [];
+        foreach ($resources as $resource => $actions) {
+            foreach ($actions as $action) {
+                $permissions[] = "{$resource}.{$action}";
+            }
+        }
+        return $permissions;
     }
 }
