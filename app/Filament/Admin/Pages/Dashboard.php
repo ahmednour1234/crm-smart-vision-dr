@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Pages;
 
 use App\Filament\Admin\Widgets\MeetingsKpiOverview;
+use App\Filament\Admin\Widgets\PermissionsStatsWidget;
 use App\Filament\Admin\Widgets\TopAgentsThisWeek;
 use Filament\Pages\Dashboard as BaseDashboard;
 
@@ -14,6 +15,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             MeetingsKpiOverview::class,
+            PermissionsStatsWidget::class,
         ];
     }
 
