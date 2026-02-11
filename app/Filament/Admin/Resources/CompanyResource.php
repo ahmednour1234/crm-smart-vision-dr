@@ -20,6 +20,11 @@ class CompanyResource extends Resource
 
     protected static ?string $navigationLabel = 'Companies';
 
+    public static function canViewAny(): bool
+    {
+        return true;
+    }
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()->with(['owner', 'event', 'package', 'country', 'createdBy', 'bookedBy']);
