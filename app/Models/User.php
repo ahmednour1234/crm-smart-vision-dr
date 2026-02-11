@@ -6,6 +6,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -21,6 +22,17 @@ class User extends Authenticatable implements FilamentUser
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function setPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            if (preg_match('/^\$2[ayb]\$/', $value) || preg_match('/^\$argon2/', $value)) {
+                $this->attributes['password'] = $value;
+            } else {
+                $this->attributes['password'] = Hash::make($value);
+            }
+        }
+    }
 
     public function meetings()
     {
