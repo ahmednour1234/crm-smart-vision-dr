@@ -11,6 +11,36 @@ class PermissionSeeder extends Seeder
     {
         $permissions = [
             [
+                'name' => 'View Permissions',
+                'slug' => 'permission.view',
+                'resource' => 'permission',
+                'description' => 'Can view permissions list',
+            ],
+            [
+                'name' => 'View Any Permission',
+                'slug' => 'permission.view.any',
+                'resource' => 'permission',
+                'description' => 'Can view any permission details',
+            ],
+            [
+                'name' => 'Create Permission',
+                'slug' => 'permission.create',
+                'resource' => 'permission',
+                'description' => 'Can create new permissions',
+            ],
+            [
+                'name' => 'Update Permission',
+                'slug' => 'permission.update',
+                'resource' => 'permission',
+                'description' => 'Can update permissions',
+            ],
+            [
+                'name' => 'Delete Permission',
+                'slug' => 'permission.delete',
+                'resource' => 'permission',
+                'description' => 'Can delete permissions',
+            ],
+            [
                 'name' => 'View Companies',
                 'slug' => 'company.view',
                 'resource' => 'company',

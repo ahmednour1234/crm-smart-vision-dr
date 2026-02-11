@@ -16,6 +16,11 @@ class RoleSeeder extends Seeder
                 'slug' => 'admin',
                 'description' => 'Full system access with all permissions',
                 'permissions' => [
+                    'permission.view',
+                    'permission.view.any',
+                    'permission.create',
+                    'permission.update',
+                    'permission.delete',
                     'company.view',
                     'company.view.any',
                     'company.create',
