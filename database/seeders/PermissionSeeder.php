@@ -88,6 +88,7 @@ class PermissionSeeder extends Seeder
             }
         }
 
+        $count = 0;
         foreach ($permissions as $permission) {
             Permission::updateOrCreate(
                 ['slug' => $permission['slug']],
@@ -98,7 +99,10 @@ class PermissionSeeder extends Seeder
                     'description' => $permission['description'] ?? null,
                 ]
             );
+            $count++;
         }
+
+        $this->command->info("Created/Updated {$count} permissions across " . count(self::$permissionDefinitions) . " resources.");
     }
 
     protected function getDescription(string $resource, string $action): string

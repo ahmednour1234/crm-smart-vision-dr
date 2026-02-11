@@ -64,6 +64,8 @@ class RoleSeeder extends Seeder
 
             $permissionIds = Permission::whereIn('slug', $permissions)->pluck('id');
             $role->permissions()->sync($permissionIds);
+
+            $this->command->info("Role '{$roleData['name']}' created/updated with " . count($permissions) . " permissions.");
         }
     }
 

@@ -37,8 +37,13 @@ class DatabaseSeeder extends Seeder
             ['price' => 0, 'created_at' => now(), 'updated_at' => now()],
         );
 
+        $this->command->info('Seeding Permissions...');
         $this->call(PermissionSeeder::class);
+        $this->command->info('Permissions seeded successfully!');
+
+        $this->command->info('Seeding Roles...');
         $this->call(RoleSeeder::class);
+        $this->command->info('Roles seeded successfully!');
 
         if (env('SEED_PERFORMANCE') === '1') {
             $this->call(PerformanceSeeder::class);
