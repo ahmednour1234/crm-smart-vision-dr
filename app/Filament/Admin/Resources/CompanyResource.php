@@ -52,11 +52,6 @@ class CompanyResource extends Resource
                 ->required()
                 ->maxLength(255),
 
-            Forms\Components\Select::make('owner_id')
-                ->relationship('owner', 'name')
-                ->searchable()
-                ->nullable(),
-
             Forms\Components\Select::make('status')
                 ->options([
                     'new' => 'New',
