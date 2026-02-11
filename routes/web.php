@@ -8,7 +8,10 @@ Route::get('/', function () {
         return redirect('/admin/login');
     }
 
-    return auth()->user()->role === 'sales'
+    $user = auth()->user();
+    $roleSlug = $user->role?->slug ?? 'sales';
+    
+    return $roleSlug === 'sales'
         ? redirect('/employee')
         : redirect('/admin');
 });

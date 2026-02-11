@@ -46,21 +46,43 @@ class User extends Authenticatable implements FilamentUser
 
     public function hasPermission(string $permissionSlug): bool
     {
+        if (empty($permissionSlug)) {
+            return false;
+        }
+
         if (! $this->is_active) {
             return false;
         }
 
-        if (! $this->role) {
+        if (! $this->role_id) {
             return false;
         }
 
-        return $this->role->hasPermission($permissionSlug);
+        if (! $this->relationLoaded('role')) {
+            $this->load('role.permissions');
+        }
+
+        $role = $this->role;
+        
+        if (! $role) {
+            return false;
+        }
+
+        return $role->hasPermission($permissionSlug);
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
         if (! $this->is_active) {
             return false;
+        }
+
+        if (! $this->role_id) {
+            return false;
+        }
+
+        if (! $this->relationLoaded('role')) {
+            $this->load('role');
         }
 
         if (! $this->role) {

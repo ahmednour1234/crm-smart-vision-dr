@@ -22,7 +22,9 @@ class UserFactory extends Factory
             'name' => $name,
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password'),
-            'role' => 'sales',
+            'role_id' => function () {
+                return \App\Models\Role::where('slug', 'sales')->first()?->id ?? 1;
+            },
             'is_active' => true,
             'remember_token' => Str::random(10),
         ];

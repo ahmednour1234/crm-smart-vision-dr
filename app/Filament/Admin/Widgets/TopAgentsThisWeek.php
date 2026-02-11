@@ -17,7 +17,10 @@ class TopAgentsThisWeek extends BaseWidget
         $weekStart = CarbonImmutable::now()->startOfWeek();
 
         return User::query()
-            ->where('role', 'sales')
+            ->whereHas('role', function ($query) {
+                $query->where('slug', 'sales');
+            })
+            ->with('role')
             ->withCount([
                 'meetings' => function ($query) use ($weekStart) {
                     $query->where('meeting_at', '>=', $weekStart);

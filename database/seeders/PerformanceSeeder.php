@@ -16,7 +16,10 @@ class PerformanceSeeder extends Seeder
         $totalCompanies = (int) (env('PERF_COMPANY_COUNT', 100000));
         $batchSize = (int) (env('PERF_BATCH_SIZE', 1000));
 
-        User::factory()->count($salesCount)->create(['role' => 'sales']);
+        $salesRole = \App\Models\Role::where('slug', 'sales')->first();
+        if ($salesRole) {
+            User::factory()->count($salesCount)->create(['role_id' => $salesRole->id]);
+        }
 
         $companiesInserted = 0;
         while ($companiesInserted < $totalCompanies) {

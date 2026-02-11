@@ -23,6 +23,16 @@ class Role extends Model
 
     public function hasPermission(string $permissionSlug): bool
     {
-        return $this->permissions()->where('slug', $permissionSlug)->exists();
+        if (empty($permissionSlug)) {
+            return false;
+        }
+
+        if (! $this->relationLoaded('permissions')) {
+            $this->load('permissions');
+        }
+
+        return $this->permissions
+            ->where('slug', $permissionSlug)
+            ->isNotEmpty();
     }
 }
