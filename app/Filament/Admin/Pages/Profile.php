@@ -23,7 +23,7 @@ class Profile extends Page implements HasForms
 
     protected static ?int $navigationSort = 1000;
 
-    protected static bool $shouldRegisterNavigation = true;
+    protected static bool $shouldRegisterNavigation = false;
 
     public ?array $data = [];
 
@@ -32,16 +32,22 @@ class Profile extends Page implements HasForms
         $user = Auth::user();
         
         if (!$user) {
-            redirect()->route('filament.admin.auth.login');
             return;
         }
 
-        $this->form->fill([
-            'name' => $user->name ?? '',
-            'email' => $user->email ?? '',
-            'role_id' => $user->role_id,
-            'is_active' => $user->is_active ?? false,
-        ]);
+        try {
+            $this->form->fill([
+                'name' => $user->name ?? '',
+                'email' => $user->email ?? '',
+                'is_active' => $user->is_active ?? false,
+            ]);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error loading profile')
+                ->body('Unable to load your profile information.')
+                ->danger()
+                ->send();
+        }
     }
 
     public function form(Form $form): Form
@@ -62,10 +68,20 @@ class Profile extends Page implements HasForms
                             ->label('Email')
                             ->unique(ignoreRecord: true),
 
-                        Forms\Components\Select::make('role_id')
-                            ->relationship('role', 'name')
+                        Forms\Components\TextInput::make('role_display')
+                            ->label('Role')
                             ->disabled()
-                            ->label('Role'),
+                            ->dehydrated(false)
+                            ->default(fn () => {
+                                $user = Auth::user();
+                                if (!$user || !$user->role_id) {
+                                    return 'No role assigned';
+                                }
+                                if (!$user->relationLoaded('role')) {
+                                    $user->load('role');
+                                }
+                                return $user->role?->name ?? 'No role assigned';
+                            }),
 
                         Forms\Components\Toggle::make('is_active')
                             ->disabled()
@@ -127,7 +143,6 @@ class Profile extends Page implements HasForms
         $this->form->fill([
             'name' => $user->name,
             'email' => $user->email,
-            'role_id' => $user->role_id,
             'is_active' => $user->is_active,
         ]);
 
