@@ -4,12 +4,12 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\UserResource\Pages;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -20,22 +20,22 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasPermission('user.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('user.view.any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('user.create') ?? false;
+        return Filament::auth()->user()?->hasPermission('user.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('user.update') ?? false;
+        return Filament::auth()->user()?->hasPermission('user.update') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('user.delete') ?? false;
+        return Filament::auth()->user()?->hasPermission('user.delete') ?? false;
     }
 
     public static function form(Form $form): Form

@@ -4,12 +4,12 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\MeetingResource\Pages;
 use App\Models\Meeting;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class MeetingResource extends Resource
 {
@@ -21,22 +21,22 @@ class MeetingResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasPermission('meeting.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('meeting.view.any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('meeting.create') ?? false;
+        return Filament::auth()->user()?->hasPermission('meeting.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('meeting.update') ?? false;
+        return Filament::auth()->user()?->hasPermission('meeting.update') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('meeting.delete') ?? false;
+        return Filament::auth()->user()?->hasPermission('meeting.delete') ?? false;
     }
 
     public static function form(Form $form): Form

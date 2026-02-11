@@ -4,12 +4,12 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\EventResource\Pages;
 use App\Models\Event;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class EventResource extends Resource
 {
@@ -19,22 +19,22 @@ class EventResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasPermission('event.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('event.view.any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('event.create') ?? false;
+        return Filament::auth()->user()?->hasPermission('event.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('event.update') ?? false;
+        return Filament::auth()->user()?->hasPermission('event.update') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('event.delete') ?? false;
+        return Filament::auth()->user()?->hasPermission('event.delete') ?? false;
     }
 
     public static function form(Form $form): Form

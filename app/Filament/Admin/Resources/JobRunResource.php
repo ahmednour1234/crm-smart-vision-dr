@@ -4,10 +4,10 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\JobRunResource\Pages;
 use App\Models\JobRun;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class JobRunResource extends Resource
 {
@@ -17,7 +17,7 @@ class JobRunResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->hasPermission('jobrun.view.any') ?? false;
+        return Filament::auth()->user()?->hasPermission('jobrun.view.any') ?? false;
     }
 
     public static function canCreate(): bool
