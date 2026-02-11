@@ -129,16 +129,21 @@ class CompanyResource extends Resource
                     ->label('Proforma')
                     ->icon('heroicon-o-document-text')
                     ->url(fn (Company $record): string => route('docs.proforma', $record))
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab()
+                    ->visible(fn (Company $record) => Auth::user()?->can('view', $record) ?? false),
 
                 Action::make('contract')
                     ->label('Contract')
                     ->icon('heroicon-o-document')
                     ->url(fn (Company $record): string => route('docs.contract', $record))
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab()
+                    ->visible(fn (Company $record) => Auth::user()?->can('view', $record) ?? false),
 
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (Company $record) => Auth::user()?->can('update', $record) ?? false),
+
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (Company $record) => Auth::user()?->can('delete', $record) ?? false),
             ])
             ->defaultSort('id', 'desc');
     }

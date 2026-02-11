@@ -9,18 +9,37 @@ class CompanyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->is_active;
+        if (! $user->is_active) {
+            return false;
+        }
+
+        return $user->hasPermission('company.view');
     }
 
     public function view(User $user, Company $company): bool
     {
-        // Sales can list / view all leads; UI must redact sensitive fields for non-owned leads.
-        return $user->is_active;
+        if (! $user->is_active) {
+            return false;
+        }
+
+        if (! $user->hasPermission('company.view')) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.view.any')) {
+            return true;
+        }
+
+        return $company->owner_id === $user->id || $company->created_by === $user->id;
     }
 
     public function create(User $user): bool
     {
-        return $user->is_active;
+        if (! $user->is_active) {
+            return false;
+        }
+
+        return $user->hasPermission('company.create');
     }
 
     public function update(User $user, Company $company): bool
@@ -29,7 +48,15 @@ class CompanyPolicy
             return false;
         }
 
-        return $user->role !== 'sales' || $company->owner_id === $user->id;
+        if (! $user->hasPermission('company.update')) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.update.any')) {
+            return true;
+        }
+
+        return $company->owner_id === $user->id || $company->created_by === $user->id;
     }
 
     public function delete(User $user, Company $company): bool
@@ -38,6 +65,14 @@ class CompanyPolicy
             return false;
         }
 
-        return $user->role !== 'sales' || $company->owner_id === $user->id;
+        if (! $user->hasPermission('company.delete')) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.delete.any')) {
+            return true;
+        }
+
+        return $company->owner_id === $user->id || $company->created_by === $user->id;
     }
 }

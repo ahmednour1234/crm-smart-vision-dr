@@ -27,6 +27,25 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Meeting::class);
     }
 
+    public function roleModel()
+    {
+        return Role::where('slug', $this->role)->first();
+    }
+
+    public function hasPermission(string $permissionSlug): bool
+    {
+        if (! $this->is_active) {
+            return false;
+        }
+
+        $role = $this->roleModel();
+        if (! $role) {
+            return false;
+        }
+
+        return $role->hasPermission($permissionSlug);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         if (! $this->is_active) {
