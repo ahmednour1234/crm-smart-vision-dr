@@ -89,7 +89,6 @@ class CompanyResource extends Resource
                 // جرّب slug
                 $q->orWhere('permissions.slug', $permissionSlug);
                 // جرّب key
-                $q->orWhere('permissions.key', $permissionSlug);
                 // جرّب name
                 $q->orWhere('permissions.name', $permissionSlug);
             });
