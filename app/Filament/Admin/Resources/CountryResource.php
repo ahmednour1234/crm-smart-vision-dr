@@ -27,8 +27,12 @@ class CountryResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        if ($user && !$user->relationLoaded('role')) {
-            $user->load('role.permissions');
+        if ($user) {
+            if (!$user->relationLoaded('role')) {
+                $user = User::with('role.permissions')->find($user->id);
+            } elseif ($user->role && !$user->role->relationLoaded('permissions')) {
+                $user->role->load('permissions');
+            }
         }
         return $user;
     }
