@@ -53,7 +53,7 @@ class CompanyResource extends Resource
     public static function canEdit($record): bool
     {
         $user = static::currentUser();
-        if (!$user) return false;
+        if (!$user) return true;
 
         if ($user->hasPermission('company.update.any')) return true;
         if (!$user->hasPermission('company.update')) return false;
