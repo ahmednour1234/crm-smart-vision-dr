@@ -30,26 +30,22 @@ class CountryResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && ($user->hasPermission('country.view.any') || $user->hasPermission('country.view'));
+        return true;
     }
 
     public static function canCreate(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('country.create');
+        return true;
     }
 
     public static function canEdit($record): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('country.update');
+        return true;
     }
 
     public static function canDelete($record): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('country.delete');
+        return true;
     }
 
     public static function form(Form $form): Form

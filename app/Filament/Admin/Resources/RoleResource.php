@@ -31,26 +31,22 @@ class RoleResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && ($user->hasPermission('role.view.any') || $user->hasPermission('role.view'));
+        return true;
     }
 
     public static function canCreate(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('role.create');
+        return true;
     }
 
     public static function canEdit($record): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('role.update');
+        return true;
     }
 
     public static function canDelete($record): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('role.delete');
+        return true;
     }
 
     public static function form(Form $form): Form
