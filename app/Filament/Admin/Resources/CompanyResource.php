@@ -38,13 +38,16 @@ class CompanyResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = \App\Models\User::with('role.permissions')->find(Filament::auth()->id());
-        dd(
-            $user->role_id,
-            $user->role?->slug,
-            $user->role?->permissions?->pluck('slug'),
-            $user->hasPermission('company.view.any')
-        );
+        $authId = Filament::auth()->id();
+        $user = \App\Models\User::with('role.permissions')->find($authId);
+        dd([
+            'auth_id' => $authId,
+            'user' => $user,
+            'role_id' => $user?->role_id,
+            'role_slug' => $user?->role?->slug,
+            'permissions' => $user?->role?->permissions?->pluck('slug'),
+            'has_permission' => $user?->hasPermission('company.view.any')
+        ]);
     }
 
     public static function canCreate(): bool
