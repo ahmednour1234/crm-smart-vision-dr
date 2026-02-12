@@ -86,7 +86,6 @@ class CompanyResource extends Resource
             ->where(function ($w) use ($permissionSlug) {
                 $w->orWhere(self::PERMISSIONS_TABLE . '.slug', $permissionSlug);
                 $w->orWhere(self::PERMISSIONS_TABLE . '.name', $permissionSlug);
-                $w->orWhere(self::PERMISSIONS_TABLE . '.key', $permissionSlug);
             })
             ->exists();
     }
