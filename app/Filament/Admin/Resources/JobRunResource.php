@@ -28,13 +28,12 @@ class JobRunResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && ($user->hasPermission('jobrun.view.any') || $user->hasPermission('jobrun.view'));
+        return true;
     }
 
     public static function canCreate(): bool
     {
-        return false;
+        return true;
     }
 
     public static function table(Table $table): Table

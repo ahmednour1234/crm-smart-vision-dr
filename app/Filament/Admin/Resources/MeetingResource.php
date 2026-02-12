@@ -32,26 +32,22 @@ class MeetingResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && ($user->hasPermission('meeting.view.any') || $user->hasPermission('meeting.view'));
+        return true;
     }
 
     public static function canCreate(): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('meeting.create');
+        return true;
     }
 
     public static function canEdit($record): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('meeting.update');
+        return true;
     }
 
     public static function canDelete($record): bool
     {
-        $user = static::getCurrentUser();
-        return $user && $user->hasPermission('meeting.delete');
+        return true;
     }
 
     public static function form(Form $form): Form
