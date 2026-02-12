@@ -27,12 +27,8 @@ class Role extends Model
             return false;
         }
 
-        if (! $this->relationLoaded('permissions')) {
-            $this->load('permissions');
-        }
-
-        return $this->permissions
+        return $this->permissions()
             ->where('slug', $permissionSlug)
-            ->isNotEmpty();
+            ->exists();
     }
 }
