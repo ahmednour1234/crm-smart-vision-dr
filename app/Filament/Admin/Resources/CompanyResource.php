@@ -38,6 +38,10 @@ class CompanyResource extends Resource
 
     public static function canViewAny(): bool
     {
+        if (!Filament::auth()->check()) {
+            return true;
+        }
+        
         $authId = Filament::auth()->id();
         $user = \App\Models\User::with('role.permissions')->find($authId);
         dd([
