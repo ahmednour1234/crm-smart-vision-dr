@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources;
 use App\Filament\Admin\Resources\RoleResource\Pages;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -20,22 +21,30 @@ class RoleResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('role.view.any') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user?->hasPermission('role.view.any') ?? true;
     }
 
     public static function canCreate(): bool
     {
-        return Filament::auth()->user()?->hasPermission('role.create') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user?->hasPermission('role.create') ?? true;
     }
 
     public static function canEdit($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('role.update') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user?->hasPermission('role.update') ?? true;
     }
 
     public static function canDelete($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('role.delete') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user?->hasPermission('role.delete') ?? true;
     }
 
     public static function form(Form $form): Form
