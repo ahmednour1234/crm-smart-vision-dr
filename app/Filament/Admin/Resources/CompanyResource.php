@@ -21,6 +21,11 @@ class CompanyResource extends Resource
 
     protected static ?string $navigationLabel = 'Companies';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     protected static function currentUser()
     {
         return Filament::auth()->user();

@@ -20,6 +20,11 @@ class MeetingResource extends Resource
 
     protected static ?string $navigationLabel = 'Meetings (KPI)';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function canViewAny(): bool
     {
         /** @var User|null $user */

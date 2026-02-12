@@ -20,6 +20,11 @@ class PermissionResource extends Resource
 
     protected static ?string $navigationLabel = 'Permissions';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function canViewAny(): bool
     {
         /** @var User|null $user */

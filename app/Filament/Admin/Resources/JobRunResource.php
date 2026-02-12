@@ -16,6 +16,11 @@ class JobRunResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function canViewAny(): bool
     {
         /** @var User|null $user */
