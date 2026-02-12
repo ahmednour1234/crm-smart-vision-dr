@@ -28,7 +28,7 @@ class MyCompanyResource extends Resource
     private static function canSeeSensitive(Company $record): bool
     {
         $user = Auth::user();
-        if ($user && $user->role && in_array($user->role->slug, ['admin', 'manager'], true)) {
+        if ($user && $user->role && in_array($user->role->slug, ['admin', 'manager','sales'], true)) {
             return true;
         }
 
