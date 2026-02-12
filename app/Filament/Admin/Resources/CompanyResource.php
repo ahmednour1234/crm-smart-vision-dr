@@ -21,34 +21,56 @@ class CompanyResource extends Resource
     protected static ?string $navigationLabel = 'Companies';
 
     /**
-     * IMPORTANT:
-     * Register nav only if user can view (manual DB check)
+     * ✅ Turn on/off dd() from one place
      */
+    private const DEBUG_PERMISSIONS = true;
+
+    /**
+     * ✅ If your schema differs, edit only these:
+     */
+    private const USERS_TABLE = 'users';
+    private const ROLES_TABLE = 'roles';
+    private const PERMISSIONS_TABLE = 'permissions';
+
+    // pivot table name (change if yours is role_permissions)
+    private const ROLE_PERMISSION_PIVOT = 'role_permission';
+
+    // permission column holding slugs like "company.view.any" (change to key/name if needed)
+    private const PERMISSION_SLUG_COLUMN = 'slug';
+
     public static function shouldRegisterNavigation(): bool
     {
+        // ✅ Don't always return true; register only if allowed
         return static::canViewAny();
+    }
+
+    /**
+     * ✅ Use correct guard for the current Filament panel
+     * (Fixes issue where Filament::auth()->id() can be null)
+     */
+    protected static function authGuard(): string
+    {
+        return Filament::getCurrentPanel()?->getAuthGuard() ?? 'web';
     }
 
     protected static function authId(): ?int
     {
-        return Filament::auth()->id();
+        return auth(static::authGuard())->id();
     }
 
     /**
-     * Manual DB permission check based on:
+     * Manual DB permission check:
      * users.role_id -> role_permission -> permissions.slug
-     *
-     * Change table names here if yours differ:
-     * - roles_permissions pivot name
-     * - permissions.slug column name
      */
     protected static function userHasPermissionDb(?int $userId, string $permissionSlug): bool
     {
         $permissionSlug = trim($permissionSlug);
-        if (!$userId || $permissionSlug === '') return false;
 
-        // Get user is_active + role_id
-        $userRow = DB::table('users')
+        if (!$userId || $permissionSlug === '') {
+            return false;
+        }
+
+        $userRow = DB::table(self::USERS_TABLE)
             ->select('id', 'is_active', 'role_id')
             ->where('id', $userId)
             ->first();
@@ -57,19 +79,13 @@ class CompanyResource extends Resource
         if (empty($userRow->is_active)) return false;
         if (empty($userRow->role_id)) return false;
 
-        // Manual permission existence via joins
-        // pivot table: role_permission
-        // permissions column: slug
-        return DB::table('role_permission')
-            ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
-            ->where('role_permission.role_id', $userRow->role_id)
-            ->where('permissions.slug', $permissionSlug)
+        return DB::table(self::ROLE_PERMISSION_PIVOT)
+            ->join(self::PERMISSIONS_TABLE, self::PERMISSIONS_TABLE . '.id', '=', self::ROLE_PERMISSION_PIVOT . '.permission_id')
+            ->where(self::ROLE_PERMISSION_PIVOT . '.role_id', $userRow->role_id)
+            ->where(self::PERMISSIONS_TABLE . '.' . self::PERMISSION_SLUG_COLUMN, $permissionSlug)
             ->exists();
     }
 
-    /**
-     * Some permissions are "any" + normal
-     */
     protected static function userHasAnyPermissionDb(?int $userId, array $slugs): bool
     {
         foreach ($slugs as $slug) {
@@ -78,8 +94,65 @@ class CompanyResource extends Resource
         return false;
     }
 
+    /**
+     * ✅ Debug helper (dd)
+     * This will stop execution and show you exactly where it fails.
+     */
+    protected static function ddPermissions(string $context, array $checkSlugs): void
+    {
+        if (!self::DEBUG_PERMISSIONS) return;
+
+        $panel = Filament::getCurrentPanel();
+        $guard = static::authGuard();
+
+        $filamentId = Filament::auth()->id();
+        $webId = auth('web')->id();
+        $panelId = $panel?->getId();
+
+        $uid = static::authId();
+
+        $userRow = $uid
+            ? DB::table(self::USERS_TABLE)->select('id', 'is_active', 'role_id')->where('id', $uid)->first()
+            : null;
+
+        $roleSlug = null;
+        if ($userRow?->role_id) {
+            $roleSlug = DB::table(self::ROLES_TABLE)
+                ->where('id', $userRow->role_id)
+                ->value('slug');
+        }
+
+        $results = [];
+        foreach ($checkSlugs as $slug) {
+            $results[$slug] = static::userHasPermissionDb($uid, $slug);
+        }
+
+        dd([
+            'context' => $context,
+            'panel_id' => $panelId,
+            'panel_guard' => $guard,
+
+            'filament_auth_id' => $filamentId,
+            'web_auth_id' => $webId,
+            'used_auth_id' => $uid,
+
+            'user_row' => $userRow,
+            'role_slug' => $roleSlug,
+
+            'pivot_table' => self::ROLE_PERMISSION_PIVOT,
+            'permission_column' => self::PERMISSION_SLUG_COLUMN,
+
+            'checks' => $results,
+        ]);
+    }
+
     public static function canViewAny(): bool
     {
+        static::ddPermissions('CompanyResource::canViewAny', [
+            'company.view.any',
+            'company.view',
+        ]);
+
         $uid = static::authId();
 
         return static::userHasAnyPermissionDb($uid, [
@@ -90,16 +163,24 @@ class CompanyResource extends Resource
 
     public static function canCreate(): bool
     {
+        static::ddPermissions('CompanyResource::canCreate', [
+            'company.create',
+        ]);
+
         return static::userHasPermissionDb(static::authId(), 'company.create');
     }
 
     public static function canEdit($record): bool
     {
+        static::ddPermissions('CompanyResource::canEdit', [
+            'company.update.any',
+            'company.update',
+        ]);
+
         $uid = static::authId();
         if (!$uid) return false;
 
         if (static::userHasPermissionDb($uid, 'company.update.any')) return true;
-
         if (! static::userHasPermissionDb($uid, 'company.update')) return false;
 
         return (int) $record->created_by === (int) $uid || (int) $record->owner_id === (int) $uid;
@@ -107,11 +188,15 @@ class CompanyResource extends Resource
 
     public static function canDelete($record): bool
     {
+        static::ddPermissions('CompanyResource::canDelete', [
+            'company.delete.any',
+            'company.delete',
+        ]);
+
         $uid = static::authId();
         if (!$uid) return false;
 
         if (static::userHasPermissionDb($uid, 'company.delete.any')) return true;
-
         if (! static::userHasPermissionDb($uid, 'company.delete')) return false;
 
         return (int) $record->created_by === (int) $uid || (int) $record->owner_id === (int) $uid;
@@ -179,15 +264,10 @@ class CompanyResource extends Resource
                     ->getStateUsing(function (Company $record) {
                         $uid = Filament::auth()->id();
 
-                        if ((int) $record->created_by === (int) $uid) {
-                            return 'Your Company';
-                        }
+                        if ((int) $record->created_by === (int) $uid) return 'Your Company';
 
                         if ($record->booked_by) {
-                            if ((int) $record->booked_by === (int) $uid) {
-                                return 'Booked by You';
-                            }
-
+                            if ((int) $record->booked_by === (int) $uid) return 'Booked by You';
                             return $record->bookedBy?->name ?? 'Booked';
                         }
 
