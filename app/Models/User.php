@@ -6,6 +6,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable implements FilamentUser
@@ -58,19 +59,11 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
-        if (! $this->relationLoaded('role')) {
-            $this->load('role.permissions');
-        } elseif ($this->role && ! $this->role->relationLoaded('permissions')) {
-            $this->role->load('permissions');
-        }
-
-        $role = $this->role;
-        
-        if (! $role) {
-            return false;
-        }
-
-        return $role->hasPermission($permissionSlug);
+        return DB::table('role_permission')
+            ->join('permissions', 'role_permission.permission_id', '=', 'permissions.id')
+            ->where('role_permission.role_id', $this->role_id)
+            ->where('permissions.slug', $permissionSlug)
+            ->exists();
     }
 
     public function canAccessPanel(Panel $panel): bool

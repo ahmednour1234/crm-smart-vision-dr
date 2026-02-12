@@ -28,16 +28,7 @@ class CompanyResource extends Resource
 
     protected static function currentUser()
     {
-        /** @var User|null $user */
-        $user = Filament::auth()->user();
-        if ($user) {
-            if (!$user->relationLoaded('role')) {
-                $user = User::with('role.permissions')->find($user->id);
-            } elseif ($user->role && !$user->role->relationLoaded('permissions')) {
-                $user->role->load('permissions');
-            }
-        }
-        return $user;
+        return Filament::auth()->user();
     }
 
     protected static function currentUserId(): ?int
