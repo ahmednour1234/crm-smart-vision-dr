@@ -74,7 +74,7 @@ class CompanyResource extends Resource
         /** @var User|null $user */
         $user = static::currentUser();
         if (!$user) {
-            return false;
+            return true;
         }
 
         if ($user->hasPermission('company.delete.any')) {
@@ -157,7 +157,6 @@ class CompanyResource extends Resource
                                 return 'Booked by You';
                             }
                             
-                            return $record->bookedBy?->name ?? 'Booked';
                         }
                         
                         return '-';
