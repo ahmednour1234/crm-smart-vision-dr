@@ -31,7 +31,7 @@ class EventResource extends Resource
     public static function canViewAny(): bool
     {
         $user = static::getCurrentUser();
-        return $user && ($user->hasPermission('event.view.any') || $user->hasPermission('event.view'));
+        return  ($user->hasPermission('event.view.any') || $user->hasPermission('event.view'));
     }
 
     public static function canCreate(): bool
