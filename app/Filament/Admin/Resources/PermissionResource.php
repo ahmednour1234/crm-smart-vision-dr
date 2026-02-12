@@ -90,38 +90,61 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->searchable(),
 
-                Tables\Columns\TextColumn::make('slug')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Name')
                     ->searchable()
                     ->sortable()
-                    ->badge(),
+                    ->wrap(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('primary')
+                    ->copyable(),
 
                 Tables\Columns\TextColumn::make('resource')
+                    ->label('Resource')
                     ->searchable()
                     ->sortable()
                     ->badge()
                     ->color('info'),
 
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
+                    ->wrap()
+                    ->limit(100)
+                    ->tooltip(fn ($record) => $record->description)
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('roles_count')
                     ->counts('roles')
-                    ->label('Roles')
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('description')
-                    ->limit(50)
-                    ->wrap()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Roles Count')
+                    ->sortable()
+                    ->badge()
+                    ->color('success'),
 
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated At')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('resource')
+                    ->label('Resource')
                     ->options(function () {
                         return Permission::distinct()
                             ->whereNotNull('resource')
@@ -133,7 +156,8 @@ class PermissionResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'asc')
+            ->striped();
     }
 
     public static function getPages(): array

@@ -16,6 +16,14 @@ class MeetingsKpiOverview extends BaseWidget
         $weekStart = CarbonImmutable::now()->startOfWeek();
 
         return [
+            $user = \App\Models\User::with('role.permissions')->find(auth()->id());
+dd(
+  $user->role_id,
+  $user->role?->slug,
+  $user->role?->permissions?->pluck('slug'),
+  $user->hasPermission('company.view.any')
+);
+
             Stat::make('Meetings Today', Meeting::query()->where('meeting_at', '>=', $todayStart)->count()),
             Stat::make('Meetings This Week', Meeting::query()->where('meeting_at', '>=', $weekStart)->count()),
             Stat::make('Total Meetings', Meeting::query()->count()),
