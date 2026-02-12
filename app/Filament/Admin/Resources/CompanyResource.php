@@ -20,14 +20,7 @@ class CompanyResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
     protected static ?string $navigationLabel = 'Companies';
-    $user = \App\Models\User::with('role.permissions')->find(auth()->id());
-    dd(
-      $user->role_id,
-      $user->role?->slug,
-      $user->role?->permissions?->pluck('slug'),
-      $user->hasPermission('company.view.any')
-    );
-    
+
     public static function shouldRegisterNavigation(): bool
     {
         return static::canViewAny();
@@ -45,7 +38,13 @@ class CompanyResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        $user = \App\Models\User::with('role.permissions')->find(Filament::auth()->id());
+        dd(
+            $user->role_id,
+            $user->role?->slug,
+            $user->role?->permissions?->pluck('slug'),
+            $user->hasPermission('company.view.any')
+        );
     }
 
     public static function canCreate(): bool
