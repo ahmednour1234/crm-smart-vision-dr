@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\CompanyResource\Pages;
 use App\Models\Company;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,8 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class CompanyResource extends Resource
 {
@@ -21,120 +20,58 @@ class CompanyResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationLabel = 'Companies';
 
-    private const USERS_TABLE = 'users';
-    private const ROLES_TABLE = 'roles';
-    private const PERMISSIONS_TABLE = 'permissions';
-
-    /**
-     * Auto-detect pivot table name:
-     * - role_permission
-     * - role_permissions
-     */
-    protected static function pivotTable(): string
+    protected static function currentUser(): ?User
     {
-        if (Schema::hasTable('role_permission')) return 'role_permission';
-        if (Schema::hasTable('role_permissions')) return 'role_permissions';
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
 
-        return 'role_permission';
+        // مهم: حمّل role + permissions لو Role::hasPermission بيحتاجهم
+        if ($user) {
+            $user->loadMissing('role.permissions');
+        }
+
+        return $user;
     }
 
-    /**
-     * Use correct guard for current Filament panel
-     */
-    protected static function authGuard(): string
-    {
-        return Filament::getCurrentPanel()?->getAuthGuard() ?? 'web';
-    }
-
-    protected static function authId(): ?int
-    {
-        return auth(static::authGuard())->id();
-    }
-
-    /**
-     * Register nav only if user can view.
-     */
     public static function shouldRegisterNavigation(): bool
     {
         return static::canViewAny();
     }
 
-    /**
-     * Manual DB permission check:
-     * users.role_id -> pivot -> permissions.(slug|name|key)
-     */
-    protected static function userHasPermissionDb(?int $userId, string $permissionSlug): bool
-    {
-        $permissionSlug = trim($permissionSlug);
-
-        if (!$userId || $permissionSlug === '') return false;
-
-        $userRow = DB::table(self::USERS_TABLE)
-            ->select('id', 'is_active', 'role_id')
-            ->where('id', $userId)
-            ->first();
-
-        if (!$userRow) return false;
-        if (empty($userRow->is_active)) return false;
-        if (empty($userRow->role_id)) return false;
-
-        $pivot = static::pivotTable();
-
-        return DB::table($pivot)
-            ->join(self::PERMISSIONS_TABLE, self::PERMISSIONS_TABLE . '.id', '=', $pivot . '.permission_id')
-            ->where($pivot . '.role_id', $userRow->role_id)
-            ->where(function ($w) use ($permissionSlug) {
-                $w->orWhere(self::PERMISSIONS_TABLE . '.slug', $permissionSlug);
-                $w->orWhere(self::PERMISSIONS_TABLE . '.name', $permissionSlug);
-            })
-            ->exists();
-    }
-
-    protected static function userHasAnyPermissionDb(?int $userId, array $slugs): bool
-    {
-        foreach ($slugs as $slug) {
-            if (static::userHasPermissionDb($userId, $slug)) return true;
-        }
-        return false;
-    }
-
     public static function canViewAny(): bool
     {
-        $uid = static::authId();
-
-        return static::userHasAnyPermissionDb($uid, [
-            'company.view.any',
-            'company.view',
-        ]);
+        $user = static::currentUser();
+        return $user && ($user->hasPermission('company.view.any') || $user->hasPermission('company.view'));
     }
 
     public static function canCreate(): bool
     {
-        return static::userHasPermissionDb(static::authId(), 'company.create');
+        $user = static::currentUser();
+        return $user && $user->hasPermission('company.create');
     }
 
     public static function canEdit($record): bool
     {
-        $uid = static::authId();
-        if (!$uid) return false;
+        $user = static::currentUser();
+        if (!$user) return false;
 
-        if (static::userHasPermissionDb($uid, 'company.update.any')) return true;
-        if (!static::userHasPermissionDb($uid, 'company.update')) return false;
+        if ($user->hasPermission('company.update.any')) return true;
+        if (!$user->hasPermission('company.update')) return false;
 
-        return (int) $record->created_by === (int) $uid
-            || (int) $record->owner_id === (int) $uid;
+        return (int) $record->created_by === (int) $user->id
+            || (int) $record->owner_id === (int) $user->id;
     }
 
     public static function canDelete($record): bool
     {
-        $uid = static::authId();
-        if (!$uid) return false;
+        $user = static::currentUser();
+        if (!$user) return false;
 
-        if (static::userHasPermissionDb($uid, 'company.delete.any')) return true;
-        if (!static::userHasPermissionDb($uid, 'company.delete')) return false;
+        if ($user->hasPermission('company.delete.any')) return true;
+        if (!$user->hasPermission('company.delete')) return false;
 
-        return (int) $record->created_by === (int) $uid
-            || (int) $record->owner_id === (int) $uid;
+        return (int) $record->created_by === (int) $user->id
+            || (int) $record->owner_id === (int) $user->id;
     }
 
     public static function getEloquentQuery(): Builder
@@ -199,15 +136,10 @@ class CompanyResource extends Resource
                     ->getStateUsing(function (Company $record) {
                         $uid = Filament::auth()->id();
 
-                        if ((int) $record->created_by === (int) $uid) {
-                            return 'Your Company';
-                        }
+                        if ((int) $record->created_by === (int) $uid) return 'Your Company';
 
                         if ($record->booked_by) {
-                            if ((int) $record->booked_by === (int) $uid) {
-                                return 'Booked by You';
-                            }
-
+                            if ((int) $record->booked_by === (int) $uid) return 'Booked by You';
                             return $record->bookedBy?->name ?? 'Booked';
                         }
 
@@ -236,7 +168,6 @@ class CompanyResource extends Resource
                         'won' => 'Won',
                         'lost' => 'Lost',
                     ]),
-
                 Tables\Filters\Filter::make('my_companies')
                     ->label('My Companies')
                     ->query(fn (Builder $query) => $query->where('created_by', Filament::auth()->id()))
