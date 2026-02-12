@@ -23,28 +23,28 @@ class RoleResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user?->hasPermission('role.view.any') ?? true;
+        return $user && $user->hasPermission('role.view.any');
     }
 
     public static function canCreate(): bool
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user?->hasPermission('role.create') ?? true;
+        return $user && $user->hasPermission('role.create');
     }
 
     public static function canEdit($record): bool
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user?->hasPermission('role.update') ?? true;
+        return $user && $user->hasPermission('role.update');
     }
 
     public static function canDelete($record): bool
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user?->hasPermission('role.delete') ?? true;
+        return $user && $user->hasPermission('role.delete');
     }
 
     public static function form(Form $form): Form

@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\CompanyResource\Pages;
 use App\Models\Company;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -32,22 +33,24 @@ class CompanyResource extends Resource
 
     public static function canViewAny(): bool
     {
-        // Debug snippet (uncomment to verify guard mismatch):
-        // dd(Filament::auth()->user(), \Illuminate\Support\Facades\Auth::user());
-        
-        return static::currentUser()?->hasPermission('company.view.any') ?? true;
+        /** @var User|null $user */
+        $user = static::currentUser();
+        return $user && $user->hasPermission('company.view.any');
     }
 
     public static function canCreate(): bool
     {
-        return static::currentUser()?->hasPermission('company.create') ?? true;
+        /** @var User|null $user */
+        $user = static::currentUser();
+        return $user && $user->hasPermission('company.create');
     }
 
     public static function canEdit($record): bool
     {
+        /** @var User|null $user */
         $user = static::currentUser();
         if (!$user) {
-            return true;
+            return false;
         }
 
         if ($user->hasPermission('company.update.any')) {
@@ -55,7 +58,7 @@ class CompanyResource extends Resource
         }
 
         if (!$user->hasPermission('company.update')) {
-            return true;
+            return false;
         }
 
         return $record->created_by === $user->id || $record->owner_id === $user->id;
@@ -63,9 +66,10 @@ class CompanyResource extends Resource
 
     public static function canDelete($record): bool
     {
+        /** @var User|null $user */
         $user = static::currentUser();
         if (!$user) {
-            return true;
+            return false;
         }
 
         if ($user->hasPermission('company.delete.any')) {
@@ -73,7 +77,7 @@ class CompanyResource extends Resource
         }
 
         if (!$user->hasPermission('company.delete')) {
-            return true;
+            return false;
         }
 
         return $record->created_by === $user->id || $record->owner_id === $user->id;

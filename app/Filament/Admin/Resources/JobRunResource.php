@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\JobRunResource\Pages;
 use App\Models\JobRun;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -17,12 +18,14 @@ class JobRunResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('jobrun.view.any') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('jobrun.view.any');
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        return false;
     }
 
     public static function table(Table $table): Table

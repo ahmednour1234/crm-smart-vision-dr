@@ -20,22 +20,30 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('user.view.any') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('user.view.any');
     }
 
     public static function canCreate(): bool
     {
-        return Filament::auth()->user()?->hasPermission('user.create') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('user.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('user.update') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('user.update');
     }
 
     public static function canDelete($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('user.delete') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('user.delete');
     }
 
     public static function form(Form $form): Form

@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\PackageResource\Pages;
 use App\Models\Package;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,22 +20,30 @@ class PackageResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.view.any') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('package.view.any');
     }
 
     public static function canCreate(): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.create') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('package.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.update') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('package.update');
     }
 
     public static function canDelete($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('package.delete') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('package.delete');
     }
 
     public static function form(Form $form): Form

@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\CountryResource\Pages;
 use App\Models\Country;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,22 +20,30 @@ class CountryResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.view.any') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('country.view.any');
     }
 
     public static function canCreate(): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.create') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('country.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.update') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('country.update');
     }
 
     public static function canDelete($record): bool
     {
-        return Filament::auth()->user()?->hasPermission('country.delete') ?? true;
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        return $user && $user->hasPermission('country.delete');
     }
 
     public static function form(Form $form): Form
