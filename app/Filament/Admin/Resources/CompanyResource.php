@@ -10,74 +10,55 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
+
     protected static ?string $navigationLabel = 'Companies';
-
-    protected static function currentUser(): ?User
-    {
-        /** @var User|null $user */
-        $user = Filament::auth()->user();
-
-        // مهم: حمّل role + permissions لو Role::hasPermission بيحتاجهم
-        if ($user) {
-            $user->loadMissing('role.permissions');
-        }
-
-        return $user;
-    }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return static::canViewAny();
+        return true;
+    }
+
+    protected static function currentUser(): ?User
+    {
+        return Filament::auth()->user();
+    }
+
+    protected static function currentUserId(): ?int
+    {
+        return Filament::auth()->id();
     }
 
     public static function canViewAny(): bool
     {
-        $user = static::currentUser();
-        return $user && ($user->hasPermission('company.view.any') || $user->hasPermission('company.view'));
+        return true;
     }
 
     public static function canCreate(): bool
     {
-        $user = static::currentUser();
-        return $user && $user->hasPermission('company.create');
+        return true;
     }
 
     public static function canEdit($record): bool
     {
-        $user = static::currentUser();
-        if (!$user) return true;
-
-        if ($user->hasPermission('company.update.any')) return true;
-        if (!$user->hasPermission('company.update')) return false;
-
-        return (int) $record->created_by === (int) $user->id
-            || (int) $record->owner_id === (int) $user->id;
+        return true;
     }
 
     public static function canDelete($record): bool
     {
-        $user = static::currentUser();
-        if (!$user) return false;
-
-        if ($user->hasPermission('company.delete.any')) return true;
-        if (!$user->hasPermission('company.delete')) return false;
-
-        return (int) $record->created_by === (int) $user->id
-            || (int) $record->owner_id === (int) $user->id;
+        return true;
     }
 
-    public static function getEloquentQuery(): Builder
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()
-            ->with(['owner', 'event', 'package', 'country', 'createdBy', 'bookedBy']);
+        return parent::getEloquentQuery()->with(['owner', 'event', 'package', 'country', 'createdBy', 'bookedBy']);
     }
 
     public static function form(Form $form): Form
@@ -130,29 +111,31 @@ class CompanyResource extends Resource
                 Tables\Columns\TextColumn::make('company_name')->searchable()->wrap(),
                 Tables\Columns\TextColumn::make('status')->badge(),
                 Tables\Columns\TextColumn::make('owner.name')->label('Owner')->sortable(),
-
                 Tables\Columns\TextColumn::make('booked')
                     ->label('Booked')
                     ->getStateUsing(function (Company $record) {
-                        $uid = Filament::auth()->id();
-
-                        if ((int) $record->created_by === (int) $uid) return 'Your Company';
-
-                        if ($record->booked_by) {
-                            if ((int) $record->booked_by === (int) $uid) return 'Booked by You';
-                            return $record->bookedBy?->name ?? 'Booked';
+                        $currentUserId = Filament::auth()->id();
+                        
+                        if ($record->created_by === $currentUserId) {
+                            return 'Your Company';
                         }
-
+                        
+                        if ($record->booked_by) {
+                            if ($record->booked_by === $currentUserId) {
+                                return 'Booked by You';
+                            }
+                            
+                        }
+                        
                         return '-';
                     })
                     ->badge()
                     ->color(fn (Company $record) => match (true) {
-                        (int) $record->created_by === (int) Filament::auth()->id() => 'success',
-                        (int) $record->booked_by === (int) Filament::auth()->id() => 'info',
+                        $record->created_by === Filament::auth()->id() => 'success',
+                        $record->booked_by === Filament::auth()->id() => 'info',
                         $record->booked_by !== null => 'warning',
                         default => 'gray',
                     }),
-
                 Tables\Columns\TextColumn::make('event.name')->label('Event')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('country.name')->label('Country')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('next_followup_date')->date()->sortable()->toggleable(isToggledHiddenByDefault: true),
@@ -170,7 +153,7 @@ class CompanyResource extends Resource
                     ]),
                 Tables\Filters\Filter::make('my_companies')
                     ->label('My Companies')
-                    ->query(fn (Builder $query) => $query->where('created_by', Filament::auth()->id()))
+                    ->query(fn ($query) => $query->where('created_by', Filament::auth()->id()))
                     ->toggle(),
             ])
             ->actions([
@@ -183,9 +166,9 @@ class CompanyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCompanies::route('/'),
+            'index' => Pages\ListCompanies::route('/'),
             'create' => Pages\CreateCompany::route('/create'),
-            'edit'   => Pages\EditCompany::route('/{record}/edit'),
+            'edit' => Pages\EditCompany::route('/{record}/edit'),
         ];
     }
 }
