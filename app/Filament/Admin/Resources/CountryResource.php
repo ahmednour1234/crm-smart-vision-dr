@@ -23,31 +23,37 @@ class CountryResource extends Resource
         return static::canViewAny();
     }
 
-    public static function canViewAny(): bool
+    protected static function getCurrentUser(): ?User
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
+        if ($user && !$user->relationLoaded('role')) {
+            $user->load('role.permissions');
+        }
+        return $user;
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = static::getCurrentUser();
         return $user && ($user->hasPermission('country.view.any') || $user->hasPermission('country.view'));
     }
 
     public static function canCreate(): bool
     {
-        /** @var User|null $user */
-        $user = Filament::auth()->user();
+        $user = static::getCurrentUser();
         return $user && $user->hasPermission('country.create');
     }
 
     public static function canEdit($record): bool
     {
-        /** @var User|null $user */
-        $user = Filament::auth()->user();
+        $user = static::getCurrentUser();
         return $user && $user->hasPermission('country.update');
     }
 
     public static function canDelete($record): bool
     {
-        /** @var User|null $user */
-        $user = Filament::auth()->user();
+        $user = static::getCurrentUser();
         return $user && $user->hasPermission('country.delete');
     }
 

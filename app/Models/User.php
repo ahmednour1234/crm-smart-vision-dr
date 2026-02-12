@@ -58,6 +58,12 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
+        if (! $this->relationLoaded('role')) {
+            $this->load('role.permissions');
+        } elseif ($this->role && ! $this->role->relationLoaded('permissions')) {
+            $this->role->load('permissions');
+        }
+
         $role = $this->role;
         
         if (! $role) {
