@@ -30,22 +30,26 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && ($user->hasPermission('user.view.any') || $user->hasPermission('user.view'));
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('user.create');
     }
 
     public static function canEdit($record): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('user.update');
     }
 
     public static function canDelete($record): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('user.delete');
     }
 
     public static function form(Form $form): Form

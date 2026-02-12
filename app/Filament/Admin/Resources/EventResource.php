@@ -30,22 +30,26 @@ class EventResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && ($user->hasPermission('event.view.any') || $user->hasPermission('event.view'));
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('event.create');
     }
 
     public static function canEdit($record): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('event.update');
     }
 
     public static function canDelete($record): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('event.delete');
     }
 
     public static function form(Form $form): Form

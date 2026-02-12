@@ -30,22 +30,26 @@ class PackageResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && ($user->hasPermission('package.view.any') || $user->hasPermission('package.view'));
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('package.create');
     }
 
     public static function canEdit($record): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('package.update');
     }
 
     public static function canDelete($record): bool
     {
-        return true;
+        $user = static::getCurrentUser();
+        return $user && $user->hasPermission('package.delete');
     }
 
     public static function form(Form $form): Form

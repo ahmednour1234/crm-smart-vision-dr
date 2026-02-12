@@ -26,7 +26,7 @@ class CompanyResource extends Resource
         return static::canViewAny();
     }
 
-    protected static function currentUser()
+    protected static function currentUser(): ?User
     {
         return Filament::auth()->user();
     }
@@ -38,35 +38,50 @@ class CompanyResource extends Resource
 
     public static function canViewAny(): bool
     {
-        if (!Filament::auth()->check()) {
-            return true;
-        }
-        
-        $authId = Filament::auth()->id();
-        $user = \App\Models\User::with('role.permissions')->find($authId);
-        dd([
-            'auth_id' => $authId,
-            'user' => $user,
-            'role_id' => $user?->role_id,
-            'role_slug' => $user?->role?->slug,
-            'permissions' => $user?->role?->permissions?->pluck('slug'),
-            'has_permission' => $user?->hasPermission('company.view.any')
-        ]);
+        $user = static::currentUser();
+        return $user && ($user->hasPermission('company.view.any') || $user->hasPermission('company.view'));
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        $user = static::currentUser();
+        return $user && $user->hasPermission('company.create');
     }
 
     public static function canEdit($record): bool
     {
-        return true;
+        $user = static::currentUser();
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.update.any')) {
+            return true;
+        }
+
+        if (!$user->hasPermission('company.update')) {
+            return false;
+        }
+
+        return $record->created_by === $user->id || $record->owner_id === $user->id;
     }
 
     public static function canDelete($record): bool
     {
-        return true;
+        $user = static::currentUser();
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasPermission('company.delete.any')) {
+            return true;
+        }
+
+        if (!$user->hasPermission('company.delete')) {
+            return false;
+        }
+
+        return $record->created_by === $user->id || $record->owner_id === $user->id;
     }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
