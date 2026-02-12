@@ -65,26 +65,38 @@ class CompanyResource extends Resource
     protected static function userHasPermissionDb(?int $userId, string $permissionSlug): bool
     {
         $permissionSlug = trim($permissionSlug);
-
+    
         if (!$userId || $permissionSlug === '') {
             return false;
         }
-
-        $userRow = DB::table(self::USERS_TABLE)
+    
+        $userRow = DB::table('users')
             ->select('id', 'is_active', 'role_id')
             ->where('id', $userId)
             ->first();
-
+    
         if (!$userRow) return false;
         if (empty($userRow->is_active)) return false;
         if (empty($userRow->role_id)) return false;
-
-        return DB::table(self::ROLE_PERMISSION_PIVOT)
-            ->join(self::PERMISSIONS_TABLE, self::PERMISSIONS_TABLE . '.id', '=', self::ROLE_PERMISSION_PIVOT . '.permission_id')
-            ->where(self::ROLE_PERMISSION_PIVOT . '.role_id', $userRow->role_id)
-            ->where(self::PERMISSIONS_TABLE . '.' . self::PERMISSION_SLUG_COLUMN, $permissionSlug)
-            ->exists();
+    
+        $pivot = 'role_permission'; // ✅ عدلها لو اسمها مختلف
+    
+        // ✅ نخليها مرنة على أعمدة permissions
+        $permQuery = DB::table($pivot)
+            ->join('permissions', 'permissions.id', '=', "{$pivot}.permission_id")
+            ->where("{$pivot}.role_id", $userRow->role_id)
+            ->where(function ($q) use ($permissionSlug) {
+                // جرّب slug
+                $q->orWhere('permissions.slug', $permissionSlug);
+                // جرّب key
+                $q->orWhere('permissions.key', $permissionSlug);
+                // جرّب name
+                $q->orWhere('permissions.name', $permissionSlug);
+            });
+    
+        return $permQuery->exists();
     }
+    
 
     protected static function userHasAnyPermissionDb(?int $userId, array $slugs): bool
     {
