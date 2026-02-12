@@ -18,6 +18,9 @@ class JobRunResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
+        if (!Filament::auth()->check()) {
+            return false;
+        }
         return static::canViewAny();
     }
 
