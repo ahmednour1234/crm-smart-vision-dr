@@ -23,7 +23,7 @@ class RoleResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user && $user->hasPermission('role.view.any');
+        return $user && ($user->hasPermission('role.view.any') || $user->hasPermission('role.view'));
     }
 
     public static function canCreate(): bool

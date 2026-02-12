@@ -22,7 +22,7 @@ class CountryResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user && $user->hasPermission('country.view.any');
+        return $user && ($user->hasPermission('country.view.any') || $user->hasPermission('country.view'));
     }
 
     public static function canCreate(): bool

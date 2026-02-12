@@ -22,7 +22,7 @@ class EventResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user && $user->hasPermission('event.view.any');
+        return $user && ($user->hasPermission('event.view.any') || $user->hasPermission('event.view'));
     }
 
     public static function canCreate(): bool

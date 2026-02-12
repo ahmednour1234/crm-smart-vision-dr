@@ -22,7 +22,7 @@ class PackageResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user && $user->hasPermission('package.view.any');
+        return $user && ($user->hasPermission('package.view.any') || $user->hasPermission('package.view'));
     }
 
     public static function canCreate(): bool

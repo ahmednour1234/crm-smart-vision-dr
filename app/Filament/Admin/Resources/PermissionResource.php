@@ -24,7 +24,7 @@ class PermissionResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user && $user->hasPermission('permission.view.any');
+        return $user && ($user->hasPermission('permission.view.any') || $user->hasPermission('permission.view'));
     }
 
     public static function canCreate(): bool

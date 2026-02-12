@@ -24,7 +24,7 @@ class MeetingResource extends Resource
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
-        return $user && $user->hasPermission('meeting.view.any');
+        return $user && ($user->hasPermission('meeting.view.any') || $user->hasPermission('meeting.view'));
     }
 
     public static function canCreate(): bool

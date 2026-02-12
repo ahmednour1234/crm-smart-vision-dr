@@ -35,7 +35,7 @@ class CompanyResource extends Resource
     {
         /** @var User|null $user */
         $user = static::currentUser();
-        return $user && $user->hasPermission('company.view.any');
+        return $user && ($user->hasPermission('company.view.any') || $user->hasPermission('company.view'));
     }
 
     public static function canCreate(): bool
