@@ -18,9 +18,14 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+    protected static function isAdmin(): bool
+    {
+        return Filament::auth()->user()?->role?->slug === 'admin';
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
-        return true;
+        return static::isAdmin();
     }
 
     protected static function getCurrentUser(): ?User
@@ -30,22 +35,22 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        return static::isAdmin();
     }
 
     public static function canCreate(): bool
     {
-        return true;
+        return static::isAdmin();
     }
 
     public static function canEdit($record): bool
     {
-        return true;
+        return static::isAdmin();
     }
 
     public static function canDelete($record): bool
     {
-        return true;
+        return static::isAdmin();
     }
 
     public static function form(Form $form): Form
@@ -82,14 +87,40 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('email')->searchable(),
-                Tables\Columns\TextColumn::make('role.name')
-                    ->label('Role')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('companies_count')
+                    ->label('Companies')
+                    ->counts('companies')
                     ->badge()
+                    ->color('warning')
                     ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')->boolean(),
+                Tables\Columns\TextColumn::make('meetings_count')
+                    ->label('Meetings')
+                    ->counts('meetings')
+                    ->badge()
+                    ->color('success')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('role.name')
+                    ->label('Roles')
+                    ->badge()
+                    ->color(fn ($record) => match ($record->role?->slug) {
+                        'admin'   => 'danger',
+                        'manager' => 'warning',
+                        default   => 'success',
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime('M d, Y H:i:s')
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

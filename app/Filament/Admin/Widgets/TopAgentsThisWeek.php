@@ -4,12 +4,18 @@ namespace App\Filament\Admin\Widgets;
 
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 
 class TopAgentsThisWeek extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        return Filament::auth()->user()?->role?->slug === 'admin';
+    }
+
     protected static ?string $heading = 'Top Agents (Meetings This Week)';
 
     protected function getTableQuery(): Builder

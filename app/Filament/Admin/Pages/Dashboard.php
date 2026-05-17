@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Pages;
 use App\Filament\Admin\Widgets\MeetingsKpiOverview;
 use App\Filament\Admin\Widgets\PermissionsStatsWidget;
 use App\Filament\Admin\Widgets\TopAgentsThisWeek;
+use App\Filament\Admin\Widgets\TopUsersWidget;
 use Filament\Actions\Action;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +43,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             TopAgentsThisWeek::class,
+            TopUsersWidget::class,
         ];
     }
 }

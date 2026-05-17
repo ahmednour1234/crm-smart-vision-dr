@@ -40,6 +40,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Meeting::class);
     }
 
+    public function companies()
+    {
+        return $this->hasMany(\App\Models\Company::class, 'owner_id');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(\App\Models\Company::class, 'booked_by');
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class);

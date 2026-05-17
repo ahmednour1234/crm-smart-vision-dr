@@ -5,11 +5,17 @@ namespace App\Filament\Admin\Widgets;
 use App\Models\Company;
 use App\Models\Meeting;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class MeetingsKpiOverview extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        return Filament::auth()->user()?->role?->slug === 'admin';
+    }
+
     protected function getStats(): array
     {
         $todayStart = CarbonImmutable::now()->startOfDay();

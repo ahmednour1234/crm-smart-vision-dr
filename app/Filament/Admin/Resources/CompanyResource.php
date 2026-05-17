@@ -51,6 +51,17 @@ class CompanyResource extends Resource
         return true;
     }
 
+    public static function canView($record): bool
+    {
+        $user = static::currentUser();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->role?->slug === 'admin'
+            || $record->owner_id === $user->id;
+    }
+
     public static function canDelete($record): bool
     {
         return true;
@@ -157,6 +168,8 @@ class CompanyResource extends Resource
                     ->toggle(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->visible(fn (Company $record): bool => static::canView($record)),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -166,9 +179,10 @@ class CompanyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCompanies::route('/'),
+            'index'  => Pages\ListCompanies::route('/'),
             'create' => Pages\CreateCompany::route('/create'),
-            'edit' => Pages\EditCompany::route('/{record}/edit'),
+            'view'   => Pages\ViewCompany::route('/{record}'),
+            'edit'   => Pages\EditCompany::route('/{record}/edit'),
         ];
     }
 }

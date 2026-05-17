@@ -5,11 +5,17 @@ namespace App\Filament\Admin\Widgets;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class PermissionsStatsWidget extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        return Filament::auth()->user()?->role?->slug === 'admin';
+    }
+
     protected function getStats(): array
     {
         $totalPermissions = Permission::count();
